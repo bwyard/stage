@@ -9,5 +9,5 @@ keywords    = ["pathfinding", "navigation", "astar", "game-dev", "flowfield"]
 categories  = ["mathematics", "game-engines"]
 
 [dependencies]
-glam          = { workspace = true }
-# prime-* deps wired when prime is available
+glam = { workspace = true }
+# prime-sdf, prime-spatial added when prime is available
