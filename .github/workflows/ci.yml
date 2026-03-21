@@ -4,10 +4,10 @@ on:
   push:
     branches-ignore:
       - main
-      - develop
+      - dev
   pull_request:
     branches:
-      - develop
+      - dev
       - main
 
 concurrency:
