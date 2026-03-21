@@ -33,3 +33,10 @@ export {
   critMultiplier,
   resolveDamage,
 } from './curves'
+
+export type { CombatAction } from './hit'
+
+export {
+  combatHit,
+  combatTick,
+} from './hit'
