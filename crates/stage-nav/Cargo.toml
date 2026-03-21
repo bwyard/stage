@@ -10,5 +10,4 @@ categories  = ["mathematics", "game-engines"]
 
 [dependencies]
 glam          = { workspace = true }
-prime-sdf     = { workspace = true }
-prime-spatial = { workspace = true }
+# prime-* deps wired when prime is available

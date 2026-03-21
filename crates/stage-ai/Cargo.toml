@@ -10,5 +10,4 @@ categories  = ["mathematics", "game-engines"]
 
 [dependencies]
 glam         = { workspace = true }
-prime-random = { workspace = true }
-prime-interp = { workspace = true }
+# prime-* deps wired when prime is available
