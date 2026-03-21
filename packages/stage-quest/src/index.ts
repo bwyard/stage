@@ -15,3 +15,10 @@ export {
   questIsFailed,
   questStatusRaw,
 } from './core'
+
+export {
+  availableQuests,
+  questIsAvailable,
+  questStatus,
+  topoSort,
+} from './dag'
