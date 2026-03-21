@@ -18,12 +18,10 @@ export const weightedPick = (entries: readonly LootEntry[], roll: number): LootE
   if (total <= 0) return null
 
   const target = roll * total
-  let acc = 0
-  for (const entry of entries) {
-    acc += entry.weight
-    if (target < acc) return entry
-  }
-  return entries[entries.length - 1]   // floating point safety
+  const idx = entries.findIndex((_, i) =>
+    entries.slice(0, i + 1).reduce((sum, e) => sum + e.weight, 0) > target
+  )
+  return idx === -1 ? entries[entries.length - 1] : entries[idx]
 }
 
 /// Resolve qty for one entry given a roll in [0,1).
@@ -55,13 +53,12 @@ export const rollLoot = (table: LootTable, rolls: readonly number[]): LootResult
   }
 
   // Single-pick: make `table.rolls` weighted picks
-  const drops: Array<{ itemId: string; qty: number }> = []
-  for (let i = 0; i < table.rolls; i++) {
+  const drops = Array.from({ length: table.rolls }, (_, i) => {
     const pickRoll = rolls[i * 2]     ?? 0
     const qtyRoll  = rolls[i * 2 + 1] ?? 0
     const entry    = weightedPick(table.entries, pickRoll)
-    if (entry) drops.push({ itemId: entry.itemId, qty: resolveQty(entry, qtyRoll) })
-  }
+    return entry ? { itemId: entry.itemId, qty: resolveQty(entry, qtyRoll) } : null
+  }).filter((d): d is { itemId: string; qty: number } => d !== null)
   return { tableId: table.id, drops }
 }
 
