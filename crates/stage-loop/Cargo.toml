@@ -1,0 +1,12 @@
+[package]
+name        = "stage-loop"
+description = "Fixed-timestep game loop with accumulator and interpolation"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+keywords    = ["game", "loop", "timestep", "interpolation", "simulation"]
+categories  = ["game-engines", "simulation"]
+
+[dependencies]
+# No prime deps needed for stage-loop — pure timing math
