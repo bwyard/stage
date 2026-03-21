@@ -27,3 +27,11 @@ export {
   spendCurrency,
   canAfford,
 } from './core'
+
+export {
+  weightedPick,
+  resolveQty,
+  rollLoot,
+  applyLoot,
+  rollAndApply,
+} from './loot'
