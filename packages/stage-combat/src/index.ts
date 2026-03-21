@@ -24,3 +24,12 @@ export {
   getStat,
   combatAdvanceTick,
 } from './core'
+
+export {
+  linearScale,
+  exponentialScale,
+  defenseMultiplier,
+  flatReduction,
+  critMultiplier,
+  resolveDamage,
+} from './curves'
