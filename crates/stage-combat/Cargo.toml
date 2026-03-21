@@ -9,5 +9,4 @@ keywords    = ["combat", "game-dev", "stats", "damage", "rpg"]
 categories  = ["mathematics", "game-engines"]
 
 [dependencies]
-prime-random = { workspace = true }
-prime-interp = { workspace = true }
+# prime-* deps wired when prime is available
