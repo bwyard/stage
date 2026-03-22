@@ -98,3 +98,49 @@ export const inventoryValue = (state: EconomyState): number =>
 /// Net worth = currency + inventory value.
 export const netWorth = (state: EconomyState): number =>
   state.currency + inventoryValue(state)
+
+// ---------------------------------------------------------------------------
+// Building / upgrade formulas — caller supplies base values from their templates
+// ---------------------------------------------------------------------------
+
+/**
+ * Gold cost to upgrade a building to the target level.
+ *
+ * # Math
+ * `cost = base * targetLevel²`
+ *
+ * Costs scale quadratically — each level costs progressively more.
+ * `base` is per-template (idle-hero stores it in BuildingTemplate, stage exports the formula).
+ *
+ * @param base        - Base gold cost from the building template
+ * @param targetLevel - The level being upgraded to (1-indexed)
+ * @returns Gold cost for upgrading to targetLevel
+ *
+ * @example
+ * calcUpgradeCost(100, 1) // → 100   (level 1)
+ * calcUpgradeCost(100, 2) // → 400   (level 2: 100 × 4)
+ * calcUpgradeCost(100, 3) // → 900   (level 3: 100 × 9)
+ */
+export const calcUpgradeCost = (base: number, targetLevel: number): number =>
+  base * targetLevel * targetLevel
+
+/**
+ * Tick duration for a building upgrade to the target level.
+ *
+ * # Math
+ * `duration = baseTicks * targetLevel`
+ *
+ * Duration scales linearly — higher levels take proportionally longer.
+ * `baseTicks` is per-template (idle-hero stores it in BuildingTemplate, stage exports the formula).
+ *
+ * @param baseTicks   - Base tick duration from the building template
+ * @param targetLevel - The level being upgraded to (1-indexed)
+ * @returns Tick duration for upgrading to targetLevel
+ *
+ * @example
+ * calcUpgradeDuration(10, 1) // → 10   (level 1)
+ * calcUpgradeDuration(10, 2) // → 20   (level 2)
+ * calcUpgradeDuration(10, 5) // → 50   (level 5)
+ */
+export const calcUpgradeDuration = (baseTicks: number, targetLevel: number): number =>
+  baseTicks * targetLevel
