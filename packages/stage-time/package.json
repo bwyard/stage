@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-time",
   "version": "0.1.0",
+  "type": "module",
   "description": "Game-world clock, day/night cycle, and schedule queries",
   "license": "MIT",
   "main": "./src/index.ts",

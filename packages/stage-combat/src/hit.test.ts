@@ -11,23 +11,23 @@ describe('combatHit', () => {
   it('reduces target hp', () => {
     const s0 = combatInit([hero, goblin])
     const s1 = combatHit(s0, 'hero', 'goblin', 'physical', 0.5, K)
-    expect(s1.combatants['goblin'].hp).toBeLessThan(30)
+    expect(s1.combatants['goblin']!.hp).toBeLessThan(30)
   })
 
   it('appends a DamageEvent', () => {
     const s0 = combatInit([hero, goblin])
     const s1 = combatHit(s0, 'hero', 'goblin', 'physical', 0.5, K)
     expect(s1.events.length).toBe(1)
-    expect(s1.events[0].source).toBe('hero')
-    expect(s1.events[0].target).toBe('goblin')
-    expect(s1.events[0].type).toBe('physical')
+    expect(s1.events[0]!.source).toBe('hero')
+    expect(s1.events[0]!.target).toBe('goblin')
+    expect(s1.events[0]!.type).toBe('physical')
   })
 
   it('true damage ignores defense', () => {
     const s0 = combatInit([hero, goblin])
     const sTrue = combatHit(s0, 'hero', 'goblin', 'true',     0.5, K)
     const sPhys = combatHit(s0, 'hero', 'goblin', 'physical', 0.5, K)
-    expect(sTrue.combatants['goblin'].hp).toBeLessThanOrEqual(sPhys.combatants['goblin'].hp)
+    expect(sTrue.combatants['goblin']!.hp).toBeLessThanOrEqual(sPhys.combatants['goblin']!.hp)
   })
 
   it('hp never goes below 0', () => {
@@ -35,7 +35,7 @@ describe('combatHit', () => {
     const s1 = combatHit(s0, 'hero', 'goblin', 'true', 0.5, K)
     const s2 = combatHit(s1, 'hero', 'goblin', 'true', 0.5, K)
     const s3 = combatHit(s2, 'hero', 'goblin', 'true', 0.5, K)
-    expect(s3.combatants['goblin'].hp).toBeGreaterThanOrEqual(0)
+    expect(s3.combatants['goblin']!.hp).toBeGreaterThanOrEqual(0)
   })
 
   it('no-op if attacker is dead', () => {
@@ -61,8 +61,8 @@ describe('combatHit', () => {
   it('does not mutate previous state', () => {
     const s0 = combatInit([hero, goblin])
     const s1 = combatHit(s0, 'hero', 'goblin', 'physical', 0.5, K)
-    expect(s0.combatants['goblin'].hp).toBe(30)
-    expect(s1.combatants['goblin'].hp).toBeLessThan(30)
+    expect(s0.combatants['goblin']!.hp).toBe(30)
+    expect(s1.combatants['goblin']!.hp).toBeLessThan(30)
     expect(s0.events.length).toBe(0)
     expect(s1.events.length).toBe(1)
   })
@@ -80,8 +80,8 @@ describe('combatTick', () => {
     const s1 = combatTick(s0, actions, 0.5, K)
     expect(s1.tick).toBe(1)
     expect(s1.events.length).toBe(2)
-    expect(s1.combatants['hero'].hp).toBeLessThan(100)
-    expect(s1.combatants['goblin'].hp).toBeLessThan(200)
+    expect(s1.combatants['hero']!.hp).toBeLessThan(100)
+    expect(s1.combatants['goblin']!.hp).toBeLessThan(200)
   })
 
   it('faster combatant acts first (speed order)', () => {
@@ -96,7 +96,7 @@ describe('combatTick', () => {
     const s1 = combatTick(s0, actions, 0.5, K)
     // hero goes first, kills goblin — goblin never attacks
     expect(combatantDead(s1, 'goblin')).toBe(true)
-    expect(s1.combatants['hero'].hp).toBe(100)  // goblin never got to attack
+    expect(s1.combatants['hero']!.hp).toBe(100)  // goblin never got to attack
   })
 
   it('empty actions just advances tick', () => {

@@ -136,8 +136,8 @@ describe('passiveEffects', () => {
     const s = learnSkill(skillInit(ALL), 'regen', 1)
     const effects = passiveEffects(s)
     expect(effects).toHaveLength(1)
-    expect(effects[0].kind).toBe('heal')
-    expect(effects[0].value).toBe(5)
+    expect(effects[0]!.kind).toBe('heal')
+    expect(effects[0]!.value).toBe(5)
   })
 
   it('does not include active skill effects', () => {

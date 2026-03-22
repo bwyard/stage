@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-events",
   "version": "0.1.0",
+  "type": "module",
   "description": "Cross-system event log — the glue connecting combat, quest, economy, and progression",
   "license": "MIT",
   "main": "./src/index.ts",

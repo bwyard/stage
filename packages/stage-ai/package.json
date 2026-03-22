@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-ai",
   "version": "0.1.0",
+  "type": "module",
   "description": "AI systems for game development",
   "license": "MIT",
   "main": "./src/index.ts",

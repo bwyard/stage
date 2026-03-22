@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-dialogue",
   "version": "0.1.0",
+  "type": "module",
   "description": "Branching dialogue trees — pure function of choices made",
   "license": "MIT",
   "main": "./src/index.ts",

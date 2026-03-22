@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-progression",
   "version": "0.1.0",
+  "type": "module",
   "description": "XP, leveling, and stat growth for RPG characters",
   "license": "MIT",
   "main": "./src/index.ts",

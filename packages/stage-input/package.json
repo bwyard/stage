@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-input",
   "version": "0.1.0",
+  "type": "module",
   "description": "Input system — keyboard, gamepad, touch",
   "license": "MIT",
   "main": "./src/index.ts",

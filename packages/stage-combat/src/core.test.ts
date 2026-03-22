@@ -14,8 +14,8 @@ describe('makeCombatant', () => {
 describe('combatInit', () => {
   it('indexes combatants by id', () => {
     const s = combatInit([hero, goblin])
-    expect(s.combatants['hero'].id).toBe('hero')
-    expect(s.combatants['goblin'].id).toBe('goblin')
+    expect(s.combatants['hero']!.id).toBe('hero')
+    expect(s.combatants['goblin']!.id).toBe('goblin')
   })
 
   it('starts with empty event log and tick 0', () => {

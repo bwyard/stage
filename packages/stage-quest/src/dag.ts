@@ -102,7 +102,7 @@ export const topoSort = (state: QuestState): readonly QuestId[] | null => {
     const id = queue.shift()!
     order.push(id)
     for (const dependent of (adjacency[id] ?? [])) {
-      indegree[dependent]--
+      indegree[dependent] = (indegree[dependent] ?? 0) - 1
       if (indegree[dependent] === 0) queue.push(dependent)
     }
   }
