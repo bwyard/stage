@@ -6,6 +6,7 @@
 // Thesis: eventLog[n] = [...eventLog[n-1], event[n]]  — APPEND only, no STORE, no JUMP.
 
 export type {
+  BaseEvent,
   GameEvent,
   EventKind,
   EventLog,
