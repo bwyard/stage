@@ -6,7 +6,7 @@
 //   "what XP did the hero earn since the last level-up?"
 //   "which quests completed this session?"
 //
-// Thesis: derived[n] = fold(eventLog[n])  — derived state is always recomputable.
+// Pattern: derived[n] = fold(eventLog[n])  — derived state is always recomputable.
 
 import type { EventLog, CombatKillEvent, XpGainedEvent } from './types'
 import { eventsOfKind, eventsSince } from './log'

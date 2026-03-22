@@ -8,26 +8,15 @@ Dependency chain: PRIME → STAGE (STAGE imports PRIME, never the reverse)
 
 ---
 
-## Thesis — A game is a pure function of state
+## Design model — A game is a pure function of state
 
-The Von Neumann architecture is built on STORE: a cell of memory holds a value, you overwrite it, the old value is gone. This is the default model for almost all software. It is also, we argue, the wrong model for expressing game systems.
-
-Von Neumann machines execute instructions in sequence and mutate shared state in place. The program counter JUMPs. Memory STOREs. This gives you a computer, but it does not give you a description of a system — it gives you a procedure for operating one. Procedures are hard to reason about, test, and compose. The STORE operation destroys the previous value. The JUMP breaks the linear flow of time.
-
-**The alternative:** No STORE. No JUMP. Only APPEND and ADVANCE.
-
-- **APPEND** — produce a new value without destroying the old one. `next_state = f(current_state)`, not `state.mutate()`.
-- **ADVANCE** — time moves forward only. State at tick `n` is fully determined by state at tick `n-1` and the inputs at tick `n`. You cannot seek backward.
-
-Under this model, a game is a pure function of state:
+A game is a pure function of state:
 
 ```
 gameState[n] = f(gameState[n-1], inputs[n])
 ```
 
 Every system in STAGE is one layer of that function. Combat resolves damage. Economy tracks resources. Quest tracks progression. Skills track ability state. Events connect them. The full game state at any tick is the composition of all these pure functions — reproducible, testable, and free of hidden mutation.
-
-This is the same formal model SCORE uses for audio (`sample[n] = f(state[n-1], t_n)`), FORM uses for graphics (`pixel[x,y] = f(scene, x, y)`), and PRIME provides as pure math primitives.
 
 **What this means in practice:**
 - All system functions are pure — same inputs always produce same outputs
@@ -39,7 +28,7 @@ This is the same formal model SCORE uses for audio (`sample[n] = f(state[n-1], t
 **What this does not mean:**
 - It does not mean we avoid data structures or tables — balance tables, quest templates, and static data are fine
 - It does not mean we avoid mutation at hardware boundaries — the I/O layer (rendering, persistence, networking) is necessarily imperative and is explicitly marked as a boundary exception
-- It does not mean we are building a math framework — STAGE is a game system, and player experience drives every design decision. The thesis is an implementation philosophy, not the product.
+- It does not mean we are building a math framework — STAGE is a game system, and player experience drives every design decision
 
 ---
 
@@ -83,7 +72,7 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 - **stage-events** ✅ — cross-system event log, typed game events, trigger conditions
   - Events are APPEND-only — never deleted, only reacted to
   - Combat emits → quest listens → economy fires → progression updates
-  - This is the most direct expression of APPEND in the thesis
+  - This is the most direct expression of the APPEND pattern
 
 ---
 

@@ -1,6 +1,6 @@
 // stage-dialogue — core
 //
-// Thesis: dialogueState[n] = f(dialogueState[n-1], choice[n])
+// Pattern: dialogueState[n] = f(dialogueState[n-1], choice[n])
 // No STORE. No JUMP. No mutation.
 // All functions are pure — same inputs always produce same outputs.
 

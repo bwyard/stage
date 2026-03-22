@@ -4,7 +4,7 @@
 // Skills are pure data — effects are descriptions, not functions.
 // The caller interprets EffectEntry and applies it to game state.
 //
-// Thesis: skillState[n] = f(skillState[n-1], event[n])
+// Pattern: skillState[n] = f(skillState[n-1], event[n])
 // No mutation. Cooldowns are stored as "ready at tick N", not countdowns.
 
 export type SkillId = string

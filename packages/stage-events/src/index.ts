@@ -3,7 +3,7 @@
 // Connects combat → quest → economy → progression via an append-only log.
 // No direct coupling between systems. Each system reads events it cares about.
 //
-// Thesis: eventLog[n] = [...eventLog[n-1], event[n]]  — APPEND only, no STORE, no JUMP.
+// Pattern: eventLog[n] = [...eventLog[n-1], event[n]]  — append only, no mutation.
 
 export type {
   BaseEvent,
