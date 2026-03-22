@@ -1,18 +1,24 @@
 import { describe, it, expect } from 'vitest'
 import {
   inputInit, inputUpdate, inputHeld, inputPressed, inputReleased, inputAxis,
-  type ActionMap, type RawInputFrame,
+  emptyFrame,
+  type ActionMap, type NormalizedFrame,
 } from './index'
 
+// Action map — bindings use signal name strings (contract with adapters).
+// 'keyboard:Space' / 'gamepad:button:0' etc. are produced by platform adapters.
 const MAP: ActionMap = {
-  jump:  [{ keyboard: 'Space' },   { gamepad: { button: 0 } }],
-  left:  [{ keyboard: 'ArrowLeft' }],
-  right: [{ keyboard: 'ArrowRight' }],
-  moveX: [{ gamepad: { axis: 0 } }],
-  tap:   [{ touch: { zone: 'tap' } }],
+  jump:  [{ signal: 'keyboard:Space' }, { signal: 'gamepad:button:0' }],
+  left:  [{ signal: 'keyboard:ArrowLeft' }],
+  right: [{ signal: 'keyboard:ArrowRight' }],
+  moveX: [{ signal: 'gamepad:axis:0' }],
+  tap:   [{ signal: 'rn:gesture:tap' }],
 }
 
-const EMPTY: RawInputFrame = {}
+const frame = (active: string[], analog: Record<string, number> = {}): NormalizedFrame => ({
+  active: new Set(active),
+  analog,
+})
 
 describe('inputInit', () => {
   it('starts with nothing active', () => {
@@ -23,110 +29,94 @@ describe('inputInit', () => {
   })
 })
 
-describe('keyboard', () => {
-  it('held when key is down', () => {
-    const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { keys: [{ type: 'keydown', key: 'Space' }] })
-    expect(inputHeld(s1, 'jump')).toBe(true)
+describe('emptyFrame', () => {
+  it('produces no active actions', () => {
+    const s = inputUpdate(inputInit(MAP), emptyFrame)
+    expect(inputHeld(s, 'jump')).toBe(false)
+  })
+})
+
+describe('held', () => {
+  it('held when signal is active', () => {
+    const s = inputUpdate(inputInit(MAP), frame(['keyboard:Space']))
+    expect(inputHeld(s, 'jump')).toBe(true)
   })
 
-  it('justPressed only on first frame', () => {
+  it('not held when signal absent', () => {
+    const s = inputUpdate(inputInit(MAP), frame([]))
+    expect(inputHeld(s, 'jump')).toBe(false)
+  })
+
+  it('second binding also triggers held', () => {
+    const s = inputUpdate(inputInit(MAP), frame(['gamepad:button:0']))
+    expect(inputHeld(s, 'jump')).toBe(true)
+  })
+})
+
+describe('justPressed', () => {
+  it('true only on the first frame signal becomes active', () => {
     const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { keys: [{ type: 'keydown', key: 'Space' }] })
-    const s2 = inputUpdate(s1, { keys: [{ type: 'keydown', key: 'Space' }] })
+    const s1 = inputUpdate(s0, frame(['keyboard:Space']))
+    const s2 = inputUpdate(s1, frame(['keyboard:Space']))
     expect(inputPressed(s1, 'jump')).toBe(true)
     expect(inputPressed(s2, 'jump')).toBe(false)
   })
 
-  it('justReleased on release frame', () => {
+  it('false when signal was never active', () => {
+    const s = inputUpdate(inputInit(MAP), emptyFrame)
+    expect(inputPressed(s, 'jump')).toBe(false)
+  })
+})
+
+describe('justReleased', () => {
+  it('true on the frame the signal goes inactive', () => {
     const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { keys: [{ type: 'keydown', key: 'Space' }] })
-    const s2 = inputUpdate(s1, EMPTY)
+    const s1 = inputUpdate(s0, frame(['keyboard:Space']))
+    const s2 = inputUpdate(s1, emptyFrame)
     expect(inputReleased(s2, 'jump')).toBe(true)
-    expect(inputHeld(s2, 'jump')).toBe(false)
   })
 
-  it('not held when key is up', () => {
+  it('false the frame after release', () => {
     const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { keys: [{ type: 'keyup', key: 'Space' }] })
-    expect(inputHeld(s1, 'jump')).toBe(false)
+    const s1 = inputUpdate(s0, frame(['keyboard:Space']))
+    const s2 = inputUpdate(s1, emptyFrame)
+    const s3 = inputUpdate(s2, emptyFrame)
+    expect(inputReleased(s3, 'jump')).toBe(false)
   })
 })
 
-describe('gamepad buttons', () => {
-  it('held when button pressed', () => {
-    const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { gamepad: { buttons: [true], axes: [] } })
-    expect(inputHeld(s1, 'jump')).toBe(true)
+describe('analog axis', () => {
+  it('returns axis value from analog map', () => {
+    const s = inputUpdate(inputInit(MAP), frame([], { 'gamepad:axis:0': 0.75 }))
+    expect(inputAxis(s, 'moveX')).toBeCloseTo(0.75)
   })
 
-  it('not held when button released', () => {
-    const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { gamepad: { buttons: [false], axes: [] } })
-    expect(inputHeld(s1, 'jump')).toBe(false)
+  it('returns 0 when no analog signal present', () => {
+    const s = inputUpdate(inputInit(MAP), emptyFrame)
+    expect(inputAxis(s, 'moveX')).toBe(0)
   })
 })
 
-describe('gamepad axes', () => {
-  it('axis value passes through', () => {
-    const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { gamepad: { buttons: [], axes: [0.75] } })
-    expect(inputAxis(s1, 'moveX')).toBeCloseTo(0.75)
-  })
-
-  it('axis above threshold activates action', () => {
-    const s0 = inputInit(MAP)
-    // moveX binding is axis-only, not a button action — so held won't fire
-    // but a binding with threshold would. Test axis value directly.
-    const s1 = inputUpdate(s0, { gamepad: { buttons: [], axes: [-0.9] } })
-    expect(inputAxis(s1, 'moveX')).toBeCloseTo(-0.9)
-  })
-
-  it('axis defaults to 0 with no gamepad', () => {
-    const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, EMPTY)
-    expect(inputAxis(s1, 'moveX')).toBe(0)
-  })
-})
-
-describe('touch', () => {
-  it('held on touchstart', () => {
-    const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { touches: [{ type: 'touchstart', zone: 'tap' }] })
-    expect(inputHeld(s1, 'tap')).toBe(true)
-  })
-
-  it('released on touchend', () => {
-    const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { touches: [{ type: 'touchstart', zone: 'tap' }] })
-    const s2 = inputUpdate(s1, EMPTY)
-    expect(inputReleased(s2, 'tap')).toBe(true)
-  })
-})
-
-describe('multiple bindings', () => {
-  it('keyboard and gamepad both trigger same action', () => {
-    const s0 = inputInit(MAP)
-    const s1kb  = inputUpdate(s0, { keys: [{ type: 'keydown', key: 'Space' }] })
-    const s1pad = inputUpdate(s0, { gamepad: { buttons: [true], axes: [] } })
-    expect(inputHeld(s1kb,  'jump')).toBe(true)
-    expect(inputHeld(s1pad, 'jump')).toBe(true)
-  })
-})
-
-describe('unknown action', () => {
-  it('returns false/0 for unmapped action', () => {
-    const s = inputUpdate(inputInit(MAP), EMPTY)
-    expect(inputHeld(s, 'nonexistent')).toBe(false)
-    expect(inputAxis(s, 'nonexistent')).toBe(0)
+describe('multiple simultaneous actions', () => {
+  it('both left and jump held when both signals active', () => {
+    const s = inputUpdate(inputInit(MAP), frame(['keyboard:Space', 'keyboard:ArrowLeft']))
+    expect(inputHeld(s, 'jump')).toBe(true)
+    expect(inputHeld(s, 'left')).toBe(true)
+    expect(inputHeld(s, 'right')).toBe(false)
   })
 })
 
 describe('immutability', () => {
-  it('inputUpdate does not mutate previous state', () => {
+  it('prior state is unchanged by inputUpdate', () => {
     const s0 = inputInit(MAP)
-    const s1 = inputUpdate(s0, { keys: [{ type: 'keydown', key: 'Space' }] })
+    inputUpdate(s0, frame(['keyboard:Space']))
     expect(inputHeld(s0, 'jump')).toBe(false)
-    expect(inputHeld(s1, 'jump')).toBe(true)
+  })
+})
+
+describe('touch signal', () => {
+  it('tap action active when rn:gesture:tap signal present', () => {
+    const s = inputUpdate(inputInit(MAP), frame(['rn:gesture:tap']))
+    expect(inputHeld(s, 'tap')).toBe(true)
   })
 })
