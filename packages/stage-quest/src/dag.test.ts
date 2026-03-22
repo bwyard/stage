@@ -17,7 +17,7 @@ const withCompleted = (state: QuestState, ids: string[]): QuestState => ({
 
 const withActive = (state: QuestState, ids: string[]): QuestState => ({
   ...state,
-  active: new Set(ids),
+  active: Object.fromEntries(ids.map(id => [id, { assigneeIds: [], startedAt: 0 }])),
 })
 
 describe('availableQuests', () => {

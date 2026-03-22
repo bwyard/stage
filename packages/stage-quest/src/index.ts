@@ -1,12 +1,20 @@
-// stage-quest — Quest dependency graph system.
+// stage-quest — Quest dependency graph + assignment + countdown system.
 //
-// Three layers:
-//   types.ts  — QuestTemplate, QuestState, QuestId, QuestStatus
-//   core.ts   — questInit, status queries
-//   dag.ts    — Kahn's algorithm, availableQuests  (diff 2)
-//   state.ts  — questBegin, questComplete, questFail  (diff 3)
+// Four layers:
+//   types.ts   — QuestTemplate, ActiveEntry, QuestState, QuestTickResult
+//   core.ts    — questInit, status queries
+//   dag.ts     — Kahn's algorithm, availableQuests
+//   state.ts   — questBegin, questComplete, questFail, questTick, questAdvance
+//   queries.ts — questAssignees, questProgress, activeQuestsFor, etc.
 
-export type { QuestId, QuestStatus, QuestTemplate, QuestState } from './types'
+export type {
+  QuestId,
+  QuestStatus,
+  QuestTemplate,
+  ActiveEntry,
+  QuestTickResult,
+  QuestState,
+} from './types'
 
 export {
   questInit,
@@ -25,7 +33,19 @@ export {
 
 export {
   questBegin,
+  questAssign,
   questComplete,
   questFail,
   questRetry,
+  questTick,
+  questAdvance,
 } from './state'
+
+export {
+  questAssignees,
+  questTicksRemaining,
+  questProgress,
+  activeQuestsFor,
+  questsReadyToComplete,
+  questStartedAt,
+} from './queries'
