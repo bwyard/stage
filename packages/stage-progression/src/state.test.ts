@@ -1,16 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { addXp, setXp } from './state'
-import { progressionInit } from './core'
+import { progressionInit, makeXpTable } from './core'
 import type { XpTable } from './types'
 
 // 5-level table with gains at each level
-const TABLE: XpTable = [
+const TABLE: XpTable = makeXpTable([
   { level: 1, xpNeeded: 0,    gains: [] },
   { level: 2, xpNeeded: 100,  gains: [{ stat: 'hp', flat: 10 }] },
   { level: 3, xpNeeded: 300,  gains: [{ stat: 'hp', flat: 15 }, { stat: 'attack', multiply: 1.1 }] },
   { level: 4, xpNeeded: 600,  gains: [{ stat: 'hp', flat: 20 }] },
   { level: 5, xpNeeded: 1000, gains: [{ stat: 'hp', flat: 25 }] },
-]
+])
 
 describe('addXp — no level-up', () => {
   it('increases xp', () => {

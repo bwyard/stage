@@ -92,3 +92,34 @@ export const loopTick = (
  */
 export const loopAlpha = (state: LoopState, fixedDt: number): number =>
   fixedDt <= 0 ? 0 : Math.min(1, Math.max(0, state.accumulator / fixedDt))
+
+// ── offlineTicks ───────────────────────────────────────────────────────────────
+
+/**
+ * Calculate ticks elapsed for offline catch-up.
+ *
+ * Call this when the game reopens after being closed. Advance the game state
+ * by the returned number of ticks to simulate what happened while the player
+ * was away.
+ *
+ * Also useful for prestige time acceleration — pass a smaller `tickMs` to
+ * simulate faster tick rates for higher prestige ranks.
+ *
+ * @param lastTickTimestamp - Unix timestamp (ms) of the last tick before closing
+ * @param now - Current Unix timestamp (ms) — use Date.now()
+ * @param tickMs - Duration of one tick in ms (same as TICK_INTERVAL_MS in the game loop)
+ * @returns Number of ticks to apply (minimum 0)
+ *
+ * @example
+ * // Player was away for 2 hours, tick interval is 1000ms (1 tick/sec)
+ * offlineTicks(lastSaved, Date.now(), 1000) // → 7200
+ *
+ * // Prestige 5 runs at 2× speed (500ms ticks)
+ * offlineTicks(lastSaved, Date.now(), 500) // → 14400
+ */
+export const offlineTicks = (
+  lastTickTimestamp: number,
+  now:               number,
+  tickMs:            number,
+): number =>
+  tickMs <= 0 ? 0 : Math.max(0, Math.floor((now - lastTickTimestamp) / tickMs))

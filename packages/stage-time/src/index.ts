@@ -1,6 +1,6 @@
-// stage-time — game-world clock, day/night cycle, schedule queries
+// stage-time — game-world clock, day/night cycle, schedule queries, calendar
 
-export type { GameClock, TimeOfDay } from './time'
+export type { GameClock, TimeOfDay, Season, CalendarState } from './time'
 
 export {
   clockInit,
@@ -14,4 +14,9 @@ export {
   nextOccurrence,
   occurrenceCount,
   isOccurrence,
+  calendarInit,
+  calendarTick,
+  calendarAdvance,
+  currentSeason,
+  currentYear,
 } from './time'

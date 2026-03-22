@@ -3,6 +3,7 @@ import {
   clockInit, clockTick, clockAdvance,
   dayPhase, timeOfDay, isDark, ticksUntil,
   isReady, nextOccurrence, occurrenceCount, isOccurrence,
+  calendarInit, calendarTick, calendarAdvance, currentSeason, currentYear,
 } from './time'
 
 describe('clockInit', () => {
@@ -109,4 +110,106 @@ describe('isOccurrence', () => {
   it('true when tick is exact multiple', ()    => expect(isOccurrence(10, 5)).toBe(true))
   it('false when tick is not a multiple', ()   => expect(isOccurrence(11, 5)).toBe(false))
   it('true at tick 0 for any interval', ()     => expect(isOccurrence(0, 100)).toBe(true))
+})
+
+// ---------------------------------------------------------------------------
+// Calendar — idle-hero: 24 ticks/day, 30 days/season (= 120 days/year)
+// ---------------------------------------------------------------------------
+
+// ticksPerSeason = 24 × 30 = 720
+// ticksPerYear   = 720 × 4 = 2880
+const TPD = 24   // ticksPerDay
+const DPS = 30   // daysPerSeason
+
+describe('calendarInit', () => {
+  it('starts at year 1, Spring, day 1, dayOfSeason 1', () => {
+    const c = calendarInit(TPD, DPS)
+    expect(c.tick).toBe(0)
+    expect(c.year).toBe(1)
+    expect(c.season).toBe('Spring')
+    expect(c.day).toBe(1)
+    expect(c.dayOfSeason).toBe(1)
+  })
+})
+
+describe('calendarTick', () => {
+  it('advances tick by 1', () => {
+    const c = calendarTick(calendarInit(TPD, DPS), TPD, DPS)
+    expect(c.tick).toBe(1)
+  })
+
+  it('does not change day until ticksPerDay ticks pass', () => {
+    const c = calendarTick(calendarInit(TPD, DPS), TPD, DPS)
+    expect(c.day).toBe(1)  // still day 1
+  })
+
+  it('advances day after ticksPerDay ticks', () => {
+    const c = calendarAdvance(calendarInit(TPD, DPS), TPD, TPD, DPS)
+    expect(c.day).toBe(2)
+    expect(c.dayOfSeason).toBe(2)
+  })
+
+  it('advances season after daysPerSeason days', () => {
+    // 30 days × 24 ticks = 720 ticks to end Spring
+    const c = calendarAdvance(calendarInit(TPD, DPS), DPS * TPD, TPD, DPS)
+    expect(c.season).toBe('Summer')
+    expect(c.day).toBe(31)
+    expect(c.dayOfSeason).toBe(1)
+  })
+
+  it('advances year after 4 seasons', () => {
+    const c = calendarAdvance(calendarInit(TPD, DPS), DPS * TPD * 4, TPD, DPS)
+    expect(c.year).toBe(2)
+    expect(c.season).toBe('Spring')
+    expect(c.day).toBe(1)
+  })
+
+  it('does not mutate previous state', () => {
+    const c0 = calendarInit(TPD, DPS)
+    calendarTick(c0, TPD, DPS)
+    expect(c0.tick).toBe(0)
+  })
+})
+
+describe('calendarAdvance', () => {
+  it('advances N ticks at once', () => {
+    const c = calendarAdvance(calendarInit(TPD, DPS), TPD * 10, TPD, DPS)
+    expect(c.day).toBe(11)
+    expect(c.tick).toBe(TPD * 10)
+  })
+
+  it('negative ticks are no-op', () => {
+    const c0 = calendarInit(TPD, DPS)
+    const c1 = calendarAdvance(c0, -5, TPD, DPS)
+    expect(c1.tick).toBe(0)
+    expect(c1.year).toBe(1)
+  })
+
+  it('Autumn starts after 60 days (2 seasons)', () => {
+    const c = calendarAdvance(calendarInit(TPD, DPS), DPS * TPD * 2, TPD, DPS)
+    expect(c.season).toBe('Autumn')
+  })
+
+  it('Winter starts after 90 days (3 seasons)', () => {
+    const c = calendarAdvance(calendarInit(TPD, DPS), DPS * TPD * 3, TPD, DPS)
+    expect(c.season).toBe('Winter')
+  })
+})
+
+describe('currentSeason / currentYear standalone', () => {
+  it('currentSeason 0 = Spring', () => {
+    expect(currentSeason(0, TPD, DPS)).toBe('Spring')
+  })
+
+  it('currentSeason after 1 season = Summer', () => {
+    expect(currentSeason(DPS * TPD, TPD, DPS)).toBe('Summer')
+  })
+
+  it('currentYear 0 = 1', () => {
+    expect(currentYear(0, TPD, DPS)).toBe(1)
+  })
+
+  it('currentYear after full year = 2', () => {
+    expect(currentYear(DPS * TPD * 4, TPD, DPS)).toBe(2)
+  })
 })

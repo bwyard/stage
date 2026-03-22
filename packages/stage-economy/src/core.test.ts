@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { economyInit, itemQty, hasItem, itemPrice, addItem, removeItem, addCurrency, spendCurrency, canAfford } from './core'
+import { economyInit, itemQty, hasItem, itemPrice, addItem, removeItem, addCurrency, spendCurrency, canAfford, canAffordGold, spendGold, addGold } from './core'
 
 const PRICES = { sword: 100, potion: 25, arrow: 2 }
 
@@ -95,5 +95,48 @@ describe('currency', () => {
   it('canAfford true when enough currency', () => {
     expect(canAfford(economyInit(100, PRICES), 100)).toBe(true)
     expect(canAfford(economyInit(100, PRICES), 101)).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Standalone gold utilities
+// ---------------------------------------------------------------------------
+
+describe('canAffordGold', () => {
+  it('true when gold >= cost', () => {
+    expect(canAffordGold(150, 100)).toBe(true)
+    expect(canAffordGold(100, 100)).toBe(true)
+  })
+
+  it('false when gold < cost', () => {
+    expect(canAffordGold(50, 100)).toBe(false)
+  })
+
+  it('false when gold is 0', () => {
+    expect(canAffordGold(0, 1)).toBe(false)
+  })
+})
+
+describe('spendGold', () => {
+  it('subtracts cost from gold', () => {
+    expect(spendGold(150, 100)).toBe(50)
+  })
+
+  it('clamps to 0 if cost exceeds gold', () => {
+    expect(spendGold(50, 100)).toBe(0)
+  })
+
+  it('exact cost returns 0', () => {
+    expect(spendGold(100, 100)).toBe(0)
+  })
+})
+
+describe('addGold', () => {
+  it('adds amount to gold', () => {
+    expect(addGold(100, 50)).toBe(150)
+  })
+
+  it('works from 0', () => {
+    expect(addGold(0, 200)).toBe(200)
   })
 })

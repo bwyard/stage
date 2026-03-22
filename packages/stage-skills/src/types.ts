@@ -43,14 +43,19 @@ export type ResourceCost = Readonly<{
 // ---------------------------------------------------------------------------
 
 export type SkillTemplate = Readonly<{
-  readonly id:           SkillId
-  readonly name:         string
-  readonly passive:      boolean             // true = always active, no activation cost
-  readonly costs:        readonly ResourceCost[]
-  readonly cooldown:     number              // ticks between uses (0 = no cooldown)
-  readonly effects:      readonly EffectEntry[]
-  readonly requiredLevel?: number            // minimum character level to learn
-  readonly requires:     readonly SkillId[]  // prerequisite skills (must be learned first)
+  readonly id:             SkillId
+  readonly name:           string
+  readonly passive:        boolean             // true = always active, no activation cost
+  readonly costs:          readonly ResourceCost[]
+  readonly cooldown:       number              // ticks between uses (0 = no cooldown)
+  readonly effects:        readonly EffectEntry[]
+  readonly requiredLevel?: number              // minimum character level to learn
+  readonly requires:       readonly SkillId[]  // prerequisite skills (must be learned first)
+  readonly metadata?:      Readonly<Record<string, unknown>>
+  // metadata is consumer-defined — examples:
+  //   { requiredPrestige: 10 }   — Master Mentor, unlocks at prestige 10
+  //   { requiredTier: 'SS' }     — Skill Borrow, unlocks at SS rank
+  //   { window: 'conclave' }     — available only during Conclave cycle
 }>
 
 // ---------------------------------------------------------------------------
