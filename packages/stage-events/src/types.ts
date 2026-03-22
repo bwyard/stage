@@ -10,7 +10,8 @@
 // Base — every event carries a tick timestamp and a source entity id
 // ---------------------------------------------------------------------------
 
-type BaseEvent = Readonly<{
+/** Minimum shape required by EventLog<T>. Extend this for custom event types. */
+export type BaseEvent = Readonly<{
   readonly tick:   number   // game tick when this event occurred
   readonly source: string   // entity id that caused this event (actor, system, etc.)
 }>
@@ -130,7 +131,18 @@ export type EventKind = GameEvent['kind']
 // EventLog — append-only, indexed by tick
 // ---------------------------------------------------------------------------
 
-export type EventLog = Readonly<{
-  readonly events: readonly GameEvent[]
+/**
+ * Append-only event log. Generic so consumers can extend with their own event types.
+ *
+ * @typeParam T - Event type. Defaults to `GameEvent`. Extend with your own events:
+ *   `type MyEvent = GameEvent | GuildEvent`
+ *   `const log: EventLog<MyEvent> = logInit(0)`
+ *
+ * The `kind`-based query helpers (`eventsOfKind`, `countOfKind`, `hasEventOfKind`)
+ * only work with `EventLog<GameEvent>`. For custom event types use `eventsSince`,
+ * `eventsFrom`, `eventsInRange`, or filter `log.events` directly.
+ */
+export type EventLog<T extends BaseEvent = GameEvent> = Readonly<{
+  readonly events: readonly T[]
   readonly tick:   number   // current tick (for timestamping new events)
 }>
