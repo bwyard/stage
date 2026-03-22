@@ -17,3 +17,13 @@ export {
   isMaxLevel,
   levelsBetween,
 } from './core'
+
+export {
+  linearXpTable,
+  exponentialXpTable,
+  polynomialXpTable,
+  flatGain,
+  percentGain,
+  multiGain,
+  applyStatGains,
+} from './curves'
