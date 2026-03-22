@@ -35,12 +35,14 @@ export const makeXpTable = (
 // Internal: normalize per-level entries to cumulative for uniform processing.
 const toCumulativeEntries = (table: XpTable): readonly LevelEntry[] => {
   if (table.mode === 'cumulative') return table.entries
-  let cumulative = 0
-  return table.entries.map(e => {
-    if (e.level === 1) return e
-    cumulative += e.xpNeeded
-    return { ...e, xpNeeded: cumulative }
-  })
+  return table.entries.reduce<{ entries: readonly LevelEntry[]; cumulative: number }>(
+    (acc, e) => {
+      if (e.level === 1) return { entries: [...acc.entries, e], cumulative: 0 }
+      const next = acc.cumulative + e.xpNeeded
+      return { entries: [...acc.entries, { ...e, xpNeeded: next }], cumulative: next }
+    },
+    { entries: [], cumulative: 0 },
+  ).entries
 }
 
 /**
