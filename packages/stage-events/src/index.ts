@@ -24,6 +24,14 @@ export type {
 } from './types'
 
 export {
+  killCount, totalDamageDealt, killsByType,
+  totalXpGained, levelUpCount, derivedLevel,
+  completedQuests, questWasCompleted,
+  totalSpent, totalEarned, lootedItemIds,
+  learnedSkillIds, skillUseCount,
+} from './reducers'
+
+export {
   logInit,
   appendEvent,
   appendEvents,
