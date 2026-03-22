@@ -4,11 +4,19 @@ import {
   eventsOfKind, eventsSince, eventsFrom, eventsInRange,
   recentEvents, countOfKind, hasEventOfKind,
 } from './log'
+import type { GameEvent } from './types'
 
-const HIT = { kind: 'combat:hit' as const, source: 'hero', target: 'goblin', damage: 20, isCrit: false, fatal: false }
-const KILL = { kind: 'combat:kill' as const, source: 'hero', target: 'goblin', enemyType: 'goblin' }
-const XP = { kind: 'progression:xp' as const, source: 'system', amount: 50, reason: 'kill' }
-const LEVELUP = { kind: 'progression:levelup' as const, source: 'system', fromLevel: 1, toLevel: 2 }
+// Full events (tick explicit) — for use with appendEvents
+const hit    = (tick: number): GameEvent => ({ kind: 'combat:hit',          tick, source: 'hero',   target: 'goblin', damage: 20, isCrit: false, fatal: false })
+const kill   = (tick: number): GameEvent => ({ kind: 'combat:kill',         tick, source: 'hero',   target: 'goblin', enemyType: 'goblin' })
+const xp     = (tick: number): GameEvent => ({ kind: 'progression:xp',     tick, source: 'system', amount: 50, reason: 'kill' })
+const levelup = (tick: number): GameEvent => ({ kind: 'progression:levelup', tick, source: 'system', fromLevel: 1, toLevel: 2 })
+
+// Partial events (no tick) — for use with appendEvent (tick is stamped from log)
+const HIT    = { kind: 'combat:hit' as const,            source: 'hero',   target: 'goblin', damage: 20, isCrit: false, fatal: false }
+const KILL   = { kind: 'combat:kill' as const,           source: 'hero',   target: 'goblin', enemyType: 'goblin' }
+const XP     = { kind: 'progression:xp' as const,       source: 'system', amount: 50, reason: 'kill' }
+const LEVELUP = { kind: 'progression:levelup' as const,  source: 'system', fromLevel: 1, toLevel: 2 }
 
 describe('logInit', () => {
   it('starts empty at tick 0', () => {
@@ -29,7 +37,7 @@ describe('appendEvent', () => {
     expect(log.events[0].kind).toBe('combat:hit')
   })
 
-  it('stamps event with current tick', () => {
+  it('stamps event with log current tick', () => {
     const log = appendEvent(logInit(5), HIT)
     expect(log.events[0].tick).toBe(5)
   })
@@ -49,7 +57,7 @@ describe('appendEvent', () => {
 
 describe('appendEvents', () => {
   it('adds multiple events', () => {
-    const log = appendEvents(logInit(), [HIT, KILL, XP])
+    const log = appendEvents(logInit(), [hit(0), kill(0), xp(0)])
     expect(log.events).toHaveLength(3)
   })
 })
@@ -70,7 +78,7 @@ describe('logTick / logAdvance', () => {
 
 describe('eventsOfKind', () => {
   it('returns only matching kind', () => {
-    const log = appendEvents(logInit(), [HIT, KILL, XP])
+    const log = appendEvents(logInit(), [hit(0), kill(0), xp(0)])
     const hits = eventsOfKind(log, 'combat:hit')
     expect(hits).toHaveLength(1)
     expect(hits[0].kind).toBe('combat:hit')
@@ -90,10 +98,8 @@ describe('eventsOfKind', () => {
 
 describe('eventsSince', () => {
   it('returns events at or after given tick', () => {
-    const log0 = appendEvent(logInit(0), HIT)
-    const log1 = appendEvent(logTick(log0), KILL)
-    const log2 = appendEvent(logTick(log1), XP)
-    const since1 = eventsSince(log2, 1)
+    const log = appendEvents(logInit(), [hit(0), kill(1), xp(2)])
+    const since1 = eventsSince(log, 1)
     expect(since1).toHaveLength(2)
     expect(since1.map(e => e.kind)).toEqual(['combat:kill', 'progression:xp'])
   })
@@ -101,7 +107,7 @@ describe('eventsSince', () => {
 
 describe('eventsFrom', () => {
   it('returns only events from the given source', () => {
-    const log = appendEvents(logInit(), [HIT, KILL, XP]) // XP source is 'system'
+    const log = appendEvents(logInit(), [hit(0), kill(0), xp(0)]) // xp source is 'system'
     expect(eventsFrom(log, 'hero')).toHaveLength(2)
     expect(eventsFrom(log, 'system')).toHaveLength(1)
   })
@@ -109,11 +115,7 @@ describe('eventsFrom', () => {
 
 describe('eventsInRange', () => {
   it('returns events within tick range inclusive', () => {
-    const log = appendEvents(logAdvance(logInit(), 0), [
-      { ...HIT, tick: 0 },
-      { ...KILL, tick: 2 },
-      { ...XP, tick: 5 },
-    ])
+    const log = appendEvents(logInit(), [hit(0), kill(2), xp(5)])
     const range = eventsInRange(log, 1, 4)
     expect(range).toHaveLength(1)
     expect(range[0].kind).toBe('combat:kill')
@@ -122,7 +124,7 @@ describe('eventsInRange', () => {
 
 describe('recentEvents', () => {
   it('returns last N events, newest first', () => {
-    const log = appendEvents(logInit(), [HIT, KILL, XP, LEVELUP])
+    const log = appendEvents(logInit(), [hit(0), kill(0), xp(0), levelup(0)])
     const recent = recentEvents(log, 2)
     expect(recent).toHaveLength(2)
     expect(recent[0].kind).toBe('progression:levelup')
@@ -132,7 +134,7 @@ describe('recentEvents', () => {
 
 describe('countOfKind / hasEventOfKind', () => {
   it('counts events of a kind', () => {
-    const log = appendEvents(logInit(), [HIT, HIT, KILL])
+    const log = appendEvents(logInit(), [hit(0), hit(0), kill(0)])
     expect(countOfKind(log, 'combat:hit')).toBe(2)
     expect(countOfKind(log, 'combat:kill')).toBe(1)
   })

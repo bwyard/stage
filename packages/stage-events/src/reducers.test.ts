@@ -8,23 +8,24 @@ import {
 } from './reducers'
 import { logInit, appendEvents } from './log'
 
+const T = 0 // all events at tick 0 for simplicity
 const log = appendEvents(logInit(0), [
-  { kind: 'combat:hit',    source: 'hero', target: 'goblin1', damage: 30, isCrit: false, fatal: false },
-  { kind: 'combat:hit',    source: 'hero', target: 'goblin1', damage: 25, isCrit: true,  fatal: true  },
-  { kind: 'combat:kill',   source: 'hero', target: 'goblin1', enemyType: 'goblin' },
-  { kind: 'combat:hit',    source: 'hero', target: 'orc1',    damage: 40, isCrit: false, fatal: true  },
-  { kind: 'combat:kill',   source: 'hero', target: 'orc1',    enemyType: 'orc' },
-  { kind: 'loot:dropped',  source: 'goblin1', items: [{ itemId: 'gold', quantity: 5 }, { itemId: 'potion', quantity: 1 }] },
-  { kind: 'progression:xp', source: 'hero', amount: 80, reason: 'kill' },
-  { kind: 'progression:xp', source: 'hero', amount: 20, reason: 'kill' },
-  { kind: 'progression:levelup', source: 'hero', fromLevel: 1, toLevel: 2 },
-  { kind: 'quest:started',   source: 'hero', questId: 'q1' },
-  { kind: 'quest:completed', source: 'hero', questId: 'q1' },
-  { kind: 'economy:purchased', source: 'hero', itemId: 'sword', quantity: 1, cost: 50 },
-  { kind: 'economy:sold',      source: 'hero', itemId: 'junk',  quantity: 3, revenue: 15 },
-  { kind: 'skill:learned', source: 'hero', skillId: 'fireball' },
-  { kind: 'skill:used',    source: 'hero', skillId: 'fireball' },
-  { kind: 'skill:used',    source: 'hero', skillId: 'fireball' },
+  { kind: 'combat:hit',    tick: T, source: 'hero', target: 'goblin1', damage: 30, isCrit: false, fatal: false },
+  { kind: 'combat:hit',    tick: T, source: 'hero', target: 'goblin1', damage: 25, isCrit: true,  fatal: true  },
+  { kind: 'combat:kill',   tick: T, source: 'hero', target: 'goblin1', enemyType: 'goblin' },
+  { kind: 'combat:hit',    tick: T, source: 'hero', target: 'orc1',    damage: 40, isCrit: false, fatal: true  },
+  { kind: 'combat:kill',   tick: T, source: 'hero', target: 'orc1',    enemyType: 'orc' },
+  { kind: 'loot:dropped',  tick: T, source: 'goblin1', items: [{ itemId: 'gold', quantity: 5 }, { itemId: 'potion', quantity: 1 }] },
+  { kind: 'progression:xp', tick: T, source: 'hero', amount: 80, reason: 'kill' },
+  { kind: 'progression:xp', tick: T, source: 'hero', amount: 20, reason: 'kill' },
+  { kind: 'progression:levelup', tick: T, source: 'hero', fromLevel: 1, toLevel: 2 },
+  { kind: 'quest:started',   tick: T, source: 'hero', questId: 'q1' },
+  { kind: 'quest:completed', tick: T, source: 'hero', questId: 'q1' },
+  { kind: 'economy:purchased', tick: T, source: 'hero', itemId: 'sword', quantity: 1, cost: 50 },
+  { kind: 'economy:sold',      tick: T, source: 'hero', itemId: 'junk',  quantity: 3, revenue: 15 },
+  { kind: 'skill:learned', tick: T, source: 'hero', skillId: 'fireball' },
+  { kind: 'skill:used',    tick: T, source: 'hero', skillId: 'fireball' },
+  { kind: 'skill:used',    tick: T, source: 'hero', skillId: 'fireball' },
 ])
 
 describe('combat reducers', () => {
