@@ -9,9 +9,7 @@
 // It is simply unreachable from the new run's state thread.
 // Only what is explicitly captured in BasePrestigeRecord crosses the boundary.
 //
-// Thesis: Branch 3 — causally inert as a third ontological state.
-// The pre-prestige world is inaccessible without any cryptographic operation or
-// physical deletion — the observer thread closed.
+// Pre-prestige state is inaccessible from the new run's thread — the observer closed.
 
 import type { BasePrestigeRecord, DynastyState, ProgressionState, StatGain } from './types'
 

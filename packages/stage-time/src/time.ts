@@ -1,6 +1,6 @@
 // stage-time — game-world clock, day/night cycle, schedule queries
 //
-// Thesis: time[n] = f(time[n-1], delta[n])
+// Pattern: time[n] = f(time[n-1], delta[n])
 // No STORE. No callbacks. No setInterval. Pure function of ticks.
 //
 // stage-loop owns the fixed-step accumulator (wall clock → steps).

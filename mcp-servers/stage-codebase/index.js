@@ -60,11 +60,11 @@ const extractSection = (content, pattern) => {
 
 const architectureRules = {
   name: 'architecture_rules',
-  description: 'Returns Stage architecture rules, thesis, code style, package standards from CLAUDE.md and ROADMAP.md.',
+  description: 'Returns Stage architecture rules, design model, code style, package standards from CLAUDE.md and ROADMAP.md.',
   inputSchema: {
-    section: z.enum(['all', 'thesis', 'phases', 'standards'])
+    section: z.enum(['all', 'model', 'phases', 'standards'])
       .optional().default('all')
-      .describe('"thesis" = the pure-function APPEND+ADVANCE model. "phases" = roadmap phases. "standards" = TSDoc, zero-let, zero-class rules. "all" = everything.'),
+      .describe('"model" = the pure-function APPEND+ADVANCE design model. "phases" = roadmap phases. "standards" = TSDoc, zero-let, zero-class rules. "all" = everything.'),
   },
   handler: async ({ section }) => {
     const claudeMd = readFile(join(STAGE_ROOT, 'CLAUDE.md')) ?? '(CLAUDE.md not found)'
@@ -73,9 +73,9 @@ const architectureRules = {
     if (section === 'all') {
       return { content: [{ type: 'text', text: `# CLAUDE.md\n\n${claudeMd}\n\n---\n\n# ROADMAP.md\n\n${roadmap}` }] }
     }
-    if (section === 'thesis') {
-      const thesis = extractSection(roadmap, /## Thesis/)
-      return { content: [{ type: 'text', text: thesis ?? roadmap }] }
+    if (section === 'model') {
+      const model = extractSection(roadmap, /## Design model/)
+      return { content: [{ type: 'text', text: model ?? roadmap }] }
     }
     if (section === 'phases') {
       const phases = roadmap.split('\n')

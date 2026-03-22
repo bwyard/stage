@@ -4,7 +4,7 @@
 // quest reads the log and counts kills. economy drops loot. progression gains XP.
 // No direct coupling. Every system reads the append-only log.
 //
-// Thesis: eventLog[n] = [...eventLog[n-1], event[n]]  — append only, no mutation.
+// Pattern: eventLog[n] = [...eventLog[n-1], event[n]]  — append only, no mutation.
 
 // ---------------------------------------------------------------------------
 // Base — every event carries a tick timestamp and a source entity id

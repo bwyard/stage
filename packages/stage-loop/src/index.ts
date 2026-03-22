@@ -1,8 +1,6 @@
 /**
  * stage-loop — Fixed timestep game loop coordinator.
  *
- * # Temporal Assembly
- *
  * The game loop is the ADVANCE operator for game state.
  * `loopTick` is a pure step function: `(state, rawDt) → [steps, newState]`.
  *
