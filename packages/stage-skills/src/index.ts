@@ -27,3 +27,6 @@ export {
   activePassives,
   learnedActives,
 } from './core'
+
+export type { UseResult } from './state'
+export { learnSkill, forgetSkill, useSkill, skillTick, skillAdvance } from './state'
