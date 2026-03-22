@@ -53,10 +53,17 @@ stage/
 
 ## Implementation priority
 
-1. `stage-loop` — fixed timestep game loop, unblocks everything
-2. `stage-input` — pure TypeScript, keyboard/gamepad/touch
-3. `stage-quest` — quest graphs, topological sort (Kahn's algorithm)
-4. `stage-combat`, `stage-economy`, `stage-ai`, `stage-proc`, `stage-nav`
+Phase 1 ✅  stage-loop, stage-input
+Phase 2 ✅  stage-quest
+Phase 3 ✅  stage-combat, stage-economy
+Phase 4     stage-progression, stage-skills
+Phase 5     stage-time, stage-events  ← cross-system glue
+Phase 6     stage-dialogue
+Phase 7     stage-world (entity registry + save/load)
+Phase 8     stage-ai, stage-nav  (action game layer, defer)
+Phase 9     stage-proc            (generation, defer)
+
+Full rationale in docs/ROADMAP.md.
 
 ---
 
