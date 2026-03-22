@@ -26,14 +26,15 @@ export const appendEvent = (
   events: [...log.events, { ...event, tick: event.tick ?? log.tick } as GameEvent],
 })
 
-/// Append multiple events at once (same tick for all).
+/// Append multiple events at once. Each event must be a full GameEvent with a tick.
+/// Use logInit(tick) + appendEvents when pre-building a log for tests or replays.
 export const appendEvents = (
   log: EventLog,
-  events: ReadonlyArray<Omit<GameEvent, 'tick'> & { tick?: number }>,
-): EventLog => events.reduce(
-  (acc, e) => appendEvent(acc, e),
-  log,
-)
+  events: readonly GameEvent[],
+): EventLog => ({
+  ...log,
+  events: [...log.events, ...events],
+})
 
 /// Advance the log's tick by 1. Pure time step.
 export const logTick = (log: EventLog): EventLog => ({ ...log, tick: log.tick + 1 })
