@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "stage-codebase": {
+      "command": "node",
+      "args": ["mcp-servers/stage-codebase/index.js"],
+      "cwd": "C:/Users/bwyar/development/stage"
+    }
+  }
+}
