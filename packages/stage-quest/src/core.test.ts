@@ -10,11 +10,19 @@ const TEMPLATES: QuestTemplate[] = [
 ]
 
 describe('questInit', () => {
-  it('starts with empty sets', () => {
+  it('starts with empty active record and empty sets', () => {
     const s = questInit(TEMPLATES)
     expect(s.completed.size).toBe(0)
-    expect(s.active.size).toBe(0)
+    expect(Object.keys(s.active).length).toBe(0)
     expect(s.failed.size).toBe(0)
+  })
+
+  it('starts at tick 0 by default', () => {
+    expect(questInit(TEMPLATES).tick).toBe(0)
+  })
+
+  it('respects custom starting tick', () => {
+    expect(questInit(TEMPLATES, 100).tick).toBe(100)
   })
 
   it('indexes templates by id', () => {
