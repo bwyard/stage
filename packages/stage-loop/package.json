@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-loop",
   "version": "0.1.0",
+  "type": "module",
   "description": "Game loop coordinator (TypeScript)",
   "license": "MIT",
   "main": "./src/index.ts",

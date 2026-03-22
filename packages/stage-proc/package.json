@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-proc",
   "version": "0.1.0",
+  "type": "module",
   "description": "Procedural generation for game development",
   "license": "MIT",
   "main": "./src/index.ts",

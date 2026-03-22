@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-quest",
   "version": "0.1.0",
+  "type": "module",
   "description": "Quest graph systems for game development",
   "license": "MIT",
   "main": "./src/index.ts",

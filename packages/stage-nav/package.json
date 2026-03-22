@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-nav",
   "version": "0.1.0",
+  "type": "module",
   "description": "Navigation systems for game development",
   "license": "MIT",
   "main": "./src/index.ts",

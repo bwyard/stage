@@ -1,6 +1,7 @@
 {
   "name": "@stage/stage-skills",
   "version": "0.1.0",
+  "type": "module",
   "description": "Skill trees, ability unlocks, cooldowns, and buffs for RPG characters",
   "license": "MIT",
   "main": "./src/index.ts",
