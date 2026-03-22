@@ -2,9 +2,11 @@
   "name": "stage-workspace",
   "private": true,
   "version": "0.1.0",
+  "type": "module",
   "scripts": {
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm -r run typecheck",
+    "thesis-check": "node scripts/thesis-check.js"
   }
 }

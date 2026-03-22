@@ -30,7 +30,7 @@ export const weightedPick = (entries: readonly LootEntry[], roll: number): LootE
   const idx = entries.findIndex((_, i) =>
     entries.slice(0, i + 1).reduce((sum, e) => sum + e.weight, 0) > target
   )
-  return idx === -1 ? entries[entries.length - 1] : entries[idx]
+  return idx === -1 ? (entries[entries.length - 1] ?? null) : (entries[idx] ?? null)
 }
 
 /**
