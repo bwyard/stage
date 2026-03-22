@@ -12,18 +12,29 @@ import type { CombatState, DamageType, DamageEvent } from './types'
 import { combatantDead, combatAdvanceTick } from './core'
 import { resolveDamage, defenseMultiplier } from './curves'
 
-/// A pending attack action for one tick.
+/** A pending attack action for one tick. */
 export type CombatAction = Readonly<{
   readonly source: string
   readonly target: string
   readonly type:   DamageType
 }>
 
-/// Resolve a single hit from source → target.
-/// roll: value in [0, 1) for crit determination.
-/// k: defense softcap constant (tuning param).
-/// Returns updated CombatState with event appended and target hp reduced.
-/// No-op if source or target is dead or missing.
+/**
+ * Resolve a single hit from source → target.
+ *
+ * @param state - Current combat state
+ * @param source - ID of the attacking combatant
+ * @param target - ID of the defending combatant
+ * @param type - Damage type; 'true' bypasses defense entirely
+ * @param roll - Value in [0, 1) for crit determination
+ * @param k - Defense softcap constant (tuning param)
+ * @returns Updated CombatState with event appended and target hp reduced.
+ *   No-op if source or target is dead or missing.
+ *
+ * @example
+ * combatHit(state, 'hero', 'goblin', 'physical', 0.5, 100)
+ * // → state with goblin hp reduced and DamageEvent appended
+ */
 export const combatHit = (
   state:  CombatState,
   source: string,
@@ -64,11 +75,22 @@ export const combatHit = (
   }
 }
 
-/// Resolve all actions for one game tick.
-/// Actions execute in descending speed order (faster combatants go first).
-/// Dead combatants skip their action.
-/// roll: single roll value used for crit resolution this tick.
-/// k: defense softcap constant.
+/**
+ * Resolve all actions for one game tick.
+ *
+ * Actions execute in descending speed order (faster combatants go first).
+ * Dead combatants skip their action. Tick counter is advanced at the end.
+ *
+ * @param state - Current combat state
+ * @param actions - All pending attack actions for this tick
+ * @param roll - Single RNG value in [0, 1) used for crit resolution this tick
+ * @param k - Defense softcap constant
+ * @returns Updated CombatState after all actions resolve and tick advances
+ *
+ * @example
+ * combatTick(state, [{ source: 'hero', target: 'goblin', type: 'physical' }], 0.5, 100)
+ * // → state after hero attacks goblin, tick incremented
+ */
 export const combatTick = (
   state:   CombatState,
   actions: readonly CombatAction[],

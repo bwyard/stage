@@ -65,22 +65,22 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 
 ---
 
-## Phase 4 — RPG character systems
+## Phase 4 — RPG character systems ✅
 *A character is a pure function of accumulated experience and choices.*
 
-- **stage-progression** — XP accumulation, level-up transitions, stat growth curves, level caps
+- **stage-progression** ✅ — XP accumulation, level-up transitions, stat growth curves, level caps
   - `progression[n] = f(progression[n-1], xpEvent[n])`
-- **stage-skills** — skill trees, ability unlocks, cooldowns (tick-based), buff/debuff stacking
+- **stage-skills** ✅ — skill trees, ability unlocks, cooldowns (tick-based), buff/debuff stacking
   - `skillState[n] = f(skillState[n-1], action[n])`
 
 ---
 
-## Phase 5 — RPG time + events ← THE GLUE
+## Phase 5 — RPG time + events ✅ ← THE GLUE
 *Events are the append-only log that connects all systems. Time is the substrate.*
 
-- **stage-time** — cooldowns, idle timers, offline progress (accumulated ticks), scheduled events
+- **stage-time** ✅ — cooldowns, idle timers, offline progress (accumulated ticks), scheduled events
   - Offline progress = `f(lastTick, currentTick)` — deterministic from tick delta
-- **stage-events** — cross-system event log, typed game events, trigger conditions
+- **stage-events** ✅ — cross-system event log, typed game events, trigger conditions
   - Events are APPEND-only — never deleted, only reacted to
   - Combat emits → quest listens → economy fires → progression updates
   - This is the most direct expression of APPEND in the thesis
@@ -130,8 +130,8 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 | Phase 1 ✅ | idle-hero can wire stage-loop + stage-input |
 | Phase 2 ✅ | idle-hero quest system |
 | Phase 3 ✅ | idle-hero combat + economy |
-| Phase 4   | idle-hero character leveling + skill trees |
-| Phase 5   | idle-hero offline progress + cross-system reactions |
+| Phase 4 ✅ | idle-hero character leveling + skill trees |
+| Phase 5 ✅ | idle-hero offline progress + cross-system reactions |
 | Phase 6   | idle-hero NPC dialogue |
 | Phase 7   | idle-hero save/load |
 | Phase 8   | action RPG / hack-and-slash consumer |

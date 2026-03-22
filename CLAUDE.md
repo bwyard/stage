@@ -56,8 +56,8 @@ stage/
 Phase 1 ✅  stage-loop, stage-input
 Phase 2 ✅  stage-quest
 Phase 3 ✅  stage-combat, stage-economy
-Phase 4     stage-progression, stage-skills
-Phase 5     stage-time, stage-events  ← cross-system glue
+Phase 4 ✅  stage-progression, stage-skills
+Phase 5 ✅  stage-time, stage-events  ← cross-system glue
 Phase 6     stage-dialogue
 Phase 7     stage-world (entity registry + save/load)
 Phase 8     stage-ai, stage-nav  (action game layer, defer)

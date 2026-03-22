@@ -13,12 +13,14 @@
 // NormalizedFrame — platform-agnostic signal snapshot
 // ---------------------------------------------------------------------------
 
-/// A snapshot of active input signals for one frame.
-/// Produced by a platform adapter — the core never touches platform APIs.
-///
-/// active: set of signal names currently active, e.g. 'keyboard:Space',
-///         'gamepad:button:0', 'rn:press:jump-btn', 'rn:gesture:swipe-left'
-/// analog: named axis values in [-1, 1], e.g. 'gamepad:axis:0' → 0.75
+/**
+ * A snapshot of active input signals for one frame.
+ * Produced by a platform adapter — the core never touches platform APIs.
+ *
+ * active: set of signal names currently active, e.g. 'keyboard:Space',
+ *         'gamepad:button:0', 'rn:press:jump-btn', 'rn:gesture:swipe-left'
+ * analog: named axis values in [-1, 1], e.g. 'gamepad:axis:0' → 0.75
+ */
 export type NormalizedFrame = Readonly<{
   readonly active: ReadonlySet<string>
   readonly analog: Readonly<Record<string, number>>
@@ -30,11 +32,13 @@ export const emptyFrame: NormalizedFrame = { active: new Set(), analog: {} }
 // ActionMap — platform-agnostic binding declarations
 // ---------------------------------------------------------------------------
 
-/// One binding = one signal name. The signal name is a contract between
-/// the action map and the adapter that produces NormalizedFrames.
+/**
+ * One binding = one signal name. The signal name is a contract between
+ * the action map and the adapter that produces NormalizedFrames.
+ */
 export type InputBinding = Readonly<{ signal: string }>
 
-/// Maps action names to one or more bindings (any active binding triggers).
+/** Maps action names to one or more bindings (any active binding triggers). */
 export type ActionMap = Readonly<Record<string, readonly InputBinding[]>>
 
 // ---------------------------------------------------------------------------
@@ -53,7 +57,16 @@ export type InputState = Readonly<{
 // Core functions
 // ---------------------------------------------------------------------------
 
-/// Create an initial InputState with nothing active.
+/**
+ * Create an initial InputState with nothing active.
+ *
+ * @param actionMap - Binding declarations mapping action names to signals
+ * @returns InputState with all sets empty and no analog values
+ *
+ * @example
+ * inputInit({ jump: [{ signal: 'keyboard:Space' }] })
+ * // → { actionMap, held: Set {}, justPressed: Set {}, justReleased: Set {}, analog: {} }
+ */
 export const inputInit = (actionMap: ActionMap): InputState => ({
   actionMap,
   held:         new Set(),
@@ -62,13 +75,23 @@ export const inputInit = (actionMap: ActionMap): InputState => ({
   analog:       {},
 })
 
-/// Advance input by one frame. Pure function — returns new InputState.
-///
-/// # Model
-///   active[n] = signals active in NormalizedFrame
-///   held[n]   = { action | any binding signal ∈ active[n] }
-///   justPressed[n]  = held[n] \ held[n-1]
-///   justReleased[n] = held[n-1] \ held[n]
+/**
+ * Advance input by one frame. Pure function — returns new InputState.
+ *
+ * # Model
+ * `active[n] = signals active in NormalizedFrame`
+ * `held[n]   = { action | any binding signal ∈ active[n] }`
+ * `justPressed[n]  = held[n] \ held[n-1]`
+ * `justReleased[n] = held[n-1] \ held[n]`
+ *
+ * @param state - Previous InputState
+ * @param frame - NormalizedFrame from the platform adapter for this frame
+ * @returns New InputState reflecting current held, justPressed, and justReleased actions
+ *
+ * @example
+ * inputUpdate(state, { active: new Set(['keyboard:Space']), analog: {} })
+ * // → state with 'jump' in justPressed (first frame Space is held)
+ */
 export const inputUpdate = (state: InputState, frame: NormalizedFrame): InputState => {
   const nextHeld = new Set<string>()
 
@@ -93,16 +116,52 @@ export const inputUpdate = (state: InputState, frame: NormalizedFrame): InputSta
   return { actionMap: state.actionMap, held: nextHeld, justPressed, justReleased, analog }
 }
 
-/// True while the action is held this frame.
+/**
+ * True while the action is held this frame.
+ *
+ * @param s - Current InputState
+ * @param action - Action name to check
+ * @returns True if the action is currently held
+ *
+ * @example
+ * inputHeld(state, 'jump') // → true (Space is held)
+ */
 export const inputHeld     = (s: InputState, action: string): boolean => s.held.has(action)
 
-/// True only on the first frame the action became active.
+/**
+ * True only on the first frame the action became active.
+ *
+ * @param s - Current InputState
+ * @param action - Action name to check
+ * @returns True if the action transitioned from released to held this frame
+ *
+ * @example
+ * inputPressed(state, 'jump') // → true (Space just pressed)
+ */
 export const inputPressed  = (s: InputState, action: string): boolean => s.justPressed.has(action)
 
-/// True only on the first frame the action became inactive.
+/**
+ * True only on the first frame the action became inactive.
+ *
+ * @param s - Current InputState
+ * @param action - Action name to check
+ * @returns True if the action transitioned from held to released this frame
+ *
+ * @example
+ * inputReleased(state, 'jump') // → true (Space just released)
+ */
 export const inputReleased = (s: InputState, action: string): boolean => s.justReleased.has(action)
 
-/// Analog value for an action in [-1, 1]. Returns 0 if no analog binding.
+/**
+ * Analog value for an action in [-1, 1]. Returns 0 if no analog binding.
+ *
+ * @param s - Current InputState
+ * @param action - Action name to query
+ * @returns Analog axis value, or 0 if no binding is active
+ *
+ * @example
+ * inputAxis(state, 'moveX') // → 0.75  (gamepad stick pushed right)
+ */
 export const inputAxis     = (s: InputState, action: string): number  => s.analog[action] ?? 0
 
 // ---------------------------------------------------------------------------
