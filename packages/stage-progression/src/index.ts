@@ -1,12 +1,13 @@
-// stage-progression — XP, leveling, and stat growth.
+// stage-progression — XP, leveling, stat growth, and dynasty prestige.
 //
-// Three layers:
-//   types.ts  — StatGain, LevelEntry, XpTable, ProgressionState
-//   core.ts   — progressionInit, xpToLevel, queries, levelsBetween
-//   curves.ts — XP table generators (linear, exponential, polynomial)  (diff 2)
-//   state.ts  — addXp (auto level-up transitions), applyGains           (diff 3)
+// Five layers:
+//   types.ts    — StatGain, LevelEntry, XpTable, XpMode, ProgressionState, BasePrestigeRecord, DynastyState
+//   core.ts     — progressionInit, xpToLevel, makeXpTable, levelsBetween, queries
+//   curves.ts   — XP table generators (linear, exponential, polynomial)
+//   state.ts    — addXp (auto level-up transitions), setXp
+//   prestige.ts — dynastyInit, dynastyPrestige, prestigeReset, dynastyBonuses
 
-export type { StatGain, LevelEntry, XpTable, ProgressionState } from './types'
+export type { StatGain, LevelEntry, XpTable, XpMode, ProgressionState, BasePrestigeRecord, DynastyState } from './types'
 
 export {
   progressionInit,
@@ -16,6 +17,7 @@ export {
   levelProgress,
   isMaxLevel,
   levelsBetween,
+  makeXpTable,
 } from './core'
 
 export {
@@ -30,3 +32,12 @@ export {
 
 export type { XpResult } from './state'
 export { addXp, setXp } from './state'
+
+export {
+  dynastyInit,
+  dynastyPrestige,
+  prestigeReset,
+  dynastyBonuses,
+  dynastyHasPrestiged,
+  dynastyRunRecord,
+} from './prestige'

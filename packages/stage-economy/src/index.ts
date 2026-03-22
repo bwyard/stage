@@ -26,6 +26,9 @@ export {
   addCurrency,
   spendCurrency,
   canAfford,
+  canAffordGold,
+  spendGold,
+  addGold,
 } from './core'
 
 export {

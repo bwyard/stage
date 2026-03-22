@@ -6,46 +6,50 @@ const noGains = () => []
 describe('linearXpTable', () => {
   it('level 1 always has xpNeeded=0', () => {
     const t = linearXpTable(5, 100, noGains)
-    expect(t[0].xpNeeded).toBe(0)
+    expect(t.entries[0].xpNeeded).toBe(0)
   })
 
   it('each level adds xpPerLevel', () => {
     const t = linearXpTable(5, 100, noGains)
-    expect(t[1].xpNeeded).toBe(100)
-    expect(t[2].xpNeeded).toBe(200)
-    expect(t[4].xpNeeded).toBe(400)
+    expect(t.entries[1].xpNeeded).toBe(100)
+    expect(t.entries[2].xpNeeded).toBe(200)
+    expect(t.entries[4].xpNeeded).toBe(400)
   })
 
   it('produces correct number of levels', () => {
-    expect(linearXpTable(10, 50, noGains).length).toBe(10)
+    expect(linearXpTable(10, 50, noGains).entries.length).toBe(10)
   })
 
   it('calls gains function with level number', () => {
     const t = linearXpTable(3, 100, level => flatGain('hp', level * 5))
-    expect(t[1].gains[0]).toEqual({ stat: 'hp', flat: 10 })
+    expect(t.entries[1].gains[0]).toEqual({ stat: 'hp', flat: 10 })
+  })
+
+  it('defaults to cumulative mode', () => {
+    expect(linearXpTable(5, 100, noGains).mode).toBe('cumulative')
   })
 })
 
 describe('exponentialXpTable', () => {
   it('level 1 has xpNeeded=0', () => {
     const t = exponentialXpTable(5, 100, 1.5, noGains)
-    expect(t[0].xpNeeded).toBe(0)
+    expect(t.entries[0].xpNeeded).toBe(0)
   })
 
   it('level 2 = base', () => {
     const t = exponentialXpTable(5, 100, 1.5, noGains)
-    expect(t[1].xpNeeded).toBe(100)
+    expect(t.entries[1].xpNeeded).toBe(100)
   })
 
   it('level 3 = base * rate', () => {
     const t = exponentialXpTable(5, 100, 1.5, noGains)
-    expect(t[2].xpNeeded).toBe(150)
+    expect(t.entries[2].xpNeeded).toBe(150)
   })
 
   it('grows each level', () => {
     const t = exponentialXpTable(5, 100, 1.5, noGains)
-    t.slice(2).forEach((entry, idx) => {
-      expect(entry.xpNeeded).toBeGreaterThan(t[idx + 1].xpNeeded)
+    t.entries.slice(2).forEach((entry, idx) => {
+      expect(entry.xpNeeded).toBeGreaterThan(t.entries[idx + 1].xpNeeded)
     })
   })
 })
@@ -53,17 +57,17 @@ describe('exponentialXpTable', () => {
 describe('polynomialXpTable', () => {
   it('level 1 has xpNeeded=0', () => {
     const t = polynomialXpTable(5, 50, 2, noGains)
-    expect(t[0].xpNeeded).toBe(0)
+    expect(t.entries[0].xpNeeded).toBe(0)
   })
 
   it('level 2 = coefficient * 1^exponent', () => {
     const t = polynomialXpTable(5, 50, 2, noGains)
-    expect(t[1].xpNeeded).toBe(50)
+    expect(t.entries[1].xpNeeded).toBe(50)
   })
 
   it('level 3 = coefficient * 2^exponent', () => {
     const t = polynomialXpTable(5, 50, 2, noGains)
-    expect(t[2].xpNeeded).toBe(200)
+    expect(t.entries[2].xpNeeded).toBe(200)
   })
 })
 
