@@ -227,11 +227,43 @@ export type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter'
 const SEASONS: readonly Season[] = ['Spring', 'Summer', 'Autumn', 'Winter']
 
 /**
+ * Days per season — uniform or variable.
+ *
+ * Pass a single `number` for equal-length seasons (e.g. 30 = 120-day year).
+ * Pass a 4-element array for variable-length seasons, one per season in order
+ * [Spring, Summer, Autumn, Winter] (e.g. [91, 93, 91, 90] = 365-day year).
+ *
+ * @example
+ * 30                    // uniform — 120-day year (30 × 4)
+ * [91, 93, 91, 90]      // variable — 365-day year (real-world approximation)
+ */
+export type DaysPerSeason = number | readonly number[]
+
+// Internal: normalise to a 4-tuple, padding missing entries with the first value.
+const normalizeDps = (
+  dps: DaysPerSeason,
+): readonly [number, number, number, number] => {
+  if (typeof dps === 'number') return [dps, dps, dps, dps]
+  const s0 = dps[0] ?? 30
+  const s1 = dps[1] ?? s0
+  const s2 = dps[2] ?? s0
+  const s3 = dps[3] ?? s0
+  return [s0, s1, s2, s3]
+}
+
+// Internal: 0-indexed day-of-year at which each season starts.
+// [0, s0, s0+s1, s0+s1+s2]
+const seasonStartDays = (
+  dps: readonly [number, number, number, number],
+): readonly [number, number, number, number] =>
+  [0, dps[0], dps[0] + dps[1], dps[0] + dps[1] + dps[2]]
+
+/**
  * Calendar state for an idle-style game.
  * All fields are 1-indexed. Thread forward — never mutate.
  *
  * - `tick`        — total game ticks elapsed since calendar start
- * - `year`        — current year (1-indexed)
+ * - `year`        — current year (1-indexed). Use `yearIndex(state)` for 0-indexed.
  * - `season`      — current season
  * - `day`         — current day of the year (1-indexed, resets each year)
  * - `dayOfSeason` — current day within the current season (1-indexed)
@@ -248,18 +280,24 @@ export type CalendarState = Readonly<{
 const calendarFromTick = (
   tick:          number,
   ticksPerDay:   number,
-  daysPerSeason: number,
+  daysPerSeason: DaysPerSeason,
 ): CalendarState => {
-  const daysPerYear  = daysPerSeason * 4
-  const totalDays    = Math.floor(tick / ticksPerDay)
-  const dayInYear    = totalDays % daysPerYear          // 0-indexed
-  const seasonIndex  = Math.floor(dayInYear / daysPerSeason)
+  const dps        = normalizeDps(daysPerSeason)
+  const daysPerYear = dps[0] + dps[1] + dps[2] + dps[3]
+  const starts     = seasonStartDays(dps)
+  const totalDays  = Math.floor(tick / ticksPerDay)
+  const dayInYear  = totalDays % daysPerYear           // 0-indexed
+  // Last season start that is <= dayInYear
+  const seasonIndex = starts.reduce<number>(
+    (idx, start, i) => dayInYear >= start ? i : idx,
+    0,
+  )
   return {
     tick,
     year:        Math.floor(totalDays / daysPerYear) + 1,
     season:      SEASONS[seasonIndex] ?? 'Spring',
     day:         dayInYear + 1,
-    dayOfSeason: (dayInYear % daysPerSeason) + 1,
+    dayOfSeason: dayInYear - (starts[seasonIndex] ?? 0) + 1,
   }
 }
 
@@ -267,14 +305,14 @@ const calendarFromTick = (
  * Create an initial CalendarState at the start of Year 1, Day 1, Spring.
  *
  * @param ticksPerDay   - Number of ticks in one game day
- * @param daysPerSeason - Number of days in each season (year = daysPerSeason × 4)
+ * @param daysPerSeason - Days per season — uniform number or [Spring, Summer, Autumn, Winter]
  * @returns CalendarState at tick 0
  *
  * @example
- * calendarInit(24, 30)
- * // → { tick: 0, year: 1, season: 'Spring', day: 1, dayOfSeason: 1 }
+ * calendarInit(24, 30)              // uniform 30-day seasons → 120-day year
+ * calendarInit(24, [91, 93, 91, 90]) // variable seasons → 365-day year
  */
-export const calendarInit = (ticksPerDay: number, daysPerSeason: number): CalendarState =>
+export const calendarInit = (ticksPerDay: number, daysPerSeason: DaysPerSeason): CalendarState =>
   calendarFromTick(0, ticksPerDay, daysPerSeason)
 
 /**
@@ -283,16 +321,17 @@ export const calendarInit = (ticksPerDay: number, daysPerSeason: number): Calend
  *
  * @param cal           - Current CalendarState
  * @param ticksPerDay   - Number of ticks in one game day
- * @param daysPerSeason - Number of days in each season
+ * @param daysPerSeason - Days per season — uniform number or [Spring, Summer, Autumn, Winter]
  * @returns New CalendarState one tick later
  *
  * @example
- * calendarTick(cal, 24, 30) // advances one tick
+ * calendarTick(cal, 24, 30)
+ * calendarTick(cal, 24, [91, 93, 91, 90])
  */
 export const calendarTick = (
   cal:           CalendarState,
   ticksPerDay:   number,
-  daysPerSeason: number,
+  daysPerSeason: DaysPerSeason,
 ): CalendarState =>
   calendarFromTick(cal.tick + 1, ticksPerDay, daysPerSeason)
 
@@ -303,17 +342,18 @@ export const calendarTick = (
  * @param cal           - Current CalendarState
  * @param ticks         - Number of ticks to advance
  * @param ticksPerDay   - Number of ticks in one game day
- * @param daysPerSeason - Number of days in each season
+ * @param daysPerSeason - Days per season — uniform number or [Spring, Summer, Autumn, Winter]
  * @returns New CalendarState N ticks later
  *
  * @example
- * calendarAdvance(cal, 720, 24, 30) // advance 30 days (720 = 30 × 24)
+ * calendarAdvance(cal, 720, 24, 30)               // advance 30 days (uniform)
+ * calendarAdvance(cal, 2184, 24, [91, 93, 91, 90]) // advance 91 days (first Spring)
  */
 export const calendarAdvance = (
   cal:           CalendarState,
   ticks:         number,
   ticksPerDay:   number,
-  daysPerSeason: number,
+  daysPerSeason: DaysPerSeason,
 ): CalendarState =>
   calendarFromTick(cal.tick + Math.max(0, ticks), ticksPerDay, daysPerSeason)
 
@@ -323,42 +363,65 @@ export const calendarAdvance = (
  *
  * @param tick          - Current game tick
  * @param ticksPerDay   - Number of ticks in one game day
- * @param daysPerSeason - Number of days in each season
+ * @param daysPerSeason - Days per season — uniform number or [Spring, Summer, Autumn, Winter]
  * @returns Current Season
  *
  * @example
- * currentSeason(0, 24, 30)    // → 'Spring'
- * currentSeason(2880, 24, 30) // → 'Summer'  (30 days × 24 ticks = 720 ticks/season)
+ * currentSeason(0, 24, 30)               // → 'Spring'
+ * currentSeason(2184, 24, 30)            // → 'Summer'  (30 × 24 = 720 ticks/season)
+ * currentSeason(2184, 24, [91, 93, 91, 90]) // → 'Summer' (91 × 24 = 2184 ticks for Spring)
  */
 export const currentSeason = (
   tick:          number,
   ticksPerDay:   number,
-  daysPerSeason: number,
+  daysPerSeason: DaysPerSeason,
 ): Season => {
-  const totalDays   = Math.floor(tick / ticksPerDay)
-  const dayInYear   = totalDays % (daysPerSeason * 4)
-  const seasonIndex = Math.floor(dayInYear / daysPerSeason)
+  const dps        = normalizeDps(daysPerSeason)
+  const daysPerYear = dps[0] + dps[1] + dps[2] + dps[3]
+  const starts     = seasonStartDays(dps)
+  const totalDays  = Math.floor(tick / ticksPerDay)
+  const dayInYear  = totalDays % daysPerYear
+  const seasonIndex = starts.reduce<number>(
+    (idx, start, i) => dayInYear >= start ? i : idx,
+    0,
+  )
   return SEASONS[seasonIndex] ?? 'Spring'
 }
 
 /**
  * Derive current year from a raw tick count (1-indexed).
+ * See also: `yearIndex` for 0-indexed year.
  *
  * @param tick          - Current game tick
  * @param ticksPerDay   - Number of ticks in one game day
- * @param daysPerSeason - Number of days in each season
+ * @param daysPerSeason - Days per season — uniform number or [Spring, Summer, Autumn, Winter]
  * @returns Current year (1-indexed)
  *
  * @example
- * currentYear(0, 24, 30)      // → 1
- * currentYear(86400, 24, 30)  // → 2  (1 year = 30 × 4 × 24 = 2880 ticks... wait, need correct math)
+ * currentYear(0, 24, 30)                    // → 1
+ * currentYear(2880, 24, 30)                 // → 2  (120 days × 24 ticks = 2880)
+ * currentYear(8760, 24, [91, 93, 91, 90])   // → 2  (365 days × 24 ticks = 8760)
  */
 export const currentYear = (
   tick:          number,
   ticksPerDay:   number,
-  daysPerSeason: number,
+  daysPerSeason: DaysPerSeason,
 ): number => {
+  const dps        = normalizeDps(daysPerSeason)
+  const daysPerYear = dps[0] + dps[1] + dps[2] + dps[3]
   const totalDays  = Math.floor(tick / ticksPerDay)
-  const daysPerYear = daysPerSeason * 4
   return Math.floor(totalDays / daysPerYear) + 1
 }
+
+/**
+ * Current year as a 0-indexed value.
+ * Convenience for consumers that use 0-indexed years internally.
+ * Equivalent to `state.year - 1`.
+ *
+ * @param state - Current CalendarState
+ * @returns 0-indexed year (Year 1 → 0, Year 2 → 1, ...)
+ *
+ * @example
+ * yearIndex(calendarInit(24, 30)) // → 0
+ */
+export const yearIndex = (state: CalendarState): number => state.year - 1

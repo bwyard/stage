@@ -3,7 +3,7 @@ import {
   clockInit, clockTick, clockAdvance,
   dayPhase, timeOfDay, isDark, ticksUntil,
   isReady, nextOccurrence, occurrenceCount, isOccurrence,
-  calendarInit, calendarTick, calendarAdvance, currentSeason, currentYear,
+  calendarInit, calendarTick, calendarAdvance, currentSeason, currentYear, yearIndex,
 } from './time'
 
 describe('clockInit', () => {
@@ -211,5 +211,112 @@ describe('currentSeason / currentYear standalone', () => {
 
   it('currentYear after full year = 2', () => {
     expect(currentYear(DPS * TPD * 4, TPD, DPS)).toBe(2)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Variable-length seasons — idle-hero real-world params
+// [91, 93, 91, 90] = 365-day year
+// ticksPerSeason: Spring=2184, Summer=2232, Autumn=2184, Winter=2160
+// ticksPerYear = 8760 (365 × 24)
+// ---------------------------------------------------------------------------
+
+const TPD2 = 24
+const VDPS = [91, 93, 91, 90] as const  // Spring / Summer / Autumn / Winter
+
+describe('variable-length seasons — calendarInit', () => {
+  it('starts at year 1, Spring, day 1, dayOfSeason 1', () => {
+    const c = calendarInit(TPD2, VDPS)
+    expect(c.year).toBe(1)
+    expect(c.season).toBe('Spring')
+    expect(c.day).toBe(1)
+    expect(c.dayOfSeason).toBe(1)
+  })
+})
+
+describe('variable-length seasons — season boundaries', () => {
+  // dayInYear is 0-indexed: advancing N days → totalDays=N → dayInYear=N%365
+  // Spring  occupies dayInYear  0– 90 (91 days)
+  // Summer  occupies dayInYear 91–183 (93 days)
+  // Autumn  occupies dayInYear 184–274 (91 days)
+  // Winter  occupies dayInYear 275–364 (90 days)
+
+  it('Spring ends at dayOfSeason 91 (advance 90 days), Summer starts next (advance 91)', () => {
+    const endSpring = calendarAdvance(calendarInit(TPD2, VDPS), 90 * TPD2, TPD2, VDPS)
+    expect(endSpring.season).toBe('Spring')
+    expect(endSpring.dayOfSeason).toBe(91)
+
+    const startSummer = calendarAdvance(calendarInit(TPD2, VDPS), 91 * TPD2, TPD2, VDPS)
+    expect(startSummer.season).toBe('Summer')
+    expect(startSummer.dayOfSeason).toBe(1)
+  })
+
+  it('Summer ends at dayOfSeason 93 (advance 183 days), Autumn starts next (advance 184)', () => {
+    const endSummer = calendarAdvance(calendarInit(TPD2, VDPS), 183 * TPD2, TPD2, VDPS)
+    expect(endSummer.season).toBe('Summer')
+    expect(endSummer.dayOfSeason).toBe(93)
+
+    const startAutumn = calendarAdvance(calendarInit(TPD2, VDPS), 184 * TPD2, TPD2, VDPS)
+    expect(startAutumn.season).toBe('Autumn')
+    expect(startAutumn.dayOfSeason).toBe(1)
+  })
+
+  it('Autumn ends at dayOfSeason 91 (advance 274 days), Winter starts next (advance 275)', () => {
+    const endAutumn = calendarAdvance(calendarInit(TPD2, VDPS), 274 * TPD2, TPD2, VDPS)
+    expect(endAutumn.season).toBe('Autumn')
+    expect(endAutumn.dayOfSeason).toBe(91)
+
+    const startWinter = calendarAdvance(calendarInit(TPD2, VDPS), 275 * TPD2, TPD2, VDPS)
+    expect(startWinter.season).toBe('Winter')
+    expect(startWinter.dayOfSeason).toBe(1)
+  })
+
+  it('year rolls over at day 366 (365 days/year, no drift)', () => {
+    const c = calendarAdvance(calendarInit(TPD2, VDPS), 365 * TPD2, TPD2, VDPS)
+    expect(c.year).toBe(2)
+    expect(c.season).toBe('Spring')
+    expect(c.day).toBe(1)
+    expect(c.dayOfSeason).toBe(1)
+  })
+
+  it('no drift after 50 years — day 1 always lands on Spring day 1', () => {
+    const c = calendarAdvance(calendarInit(TPD2, VDPS), 50 * 365 * TPD2, TPD2, VDPS)
+    expect(c.year).toBe(51)
+    expect(c.season).toBe('Spring')
+    expect(c.dayOfSeason).toBe(1)
+  })
+})
+
+describe('variable-length seasons — currentSeason / currentYear', () => {
+  it('currentSeason at tick 0 = Spring', () => {
+    expect(currentSeason(0, TPD2, VDPS)).toBe('Spring')
+  })
+
+  it('currentSeason at Summer start', () => {
+    expect(currentSeason(92 * TPD2, TPD2, VDPS)).toBe('Summer')
+  })
+
+  it('currentYear after 365-day year = 2', () => {
+    expect(currentYear(365 * TPD2, TPD2, VDPS)).toBe(2)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// yearIndex — 0-indexed year helper
+// ---------------------------------------------------------------------------
+
+describe('yearIndex', () => {
+  it('year 1 → yearIndex 0', () => {
+    expect(yearIndex(calendarInit(TPD, DPS))).toBe(0)
+  })
+
+  it('year 2 → yearIndex 1', () => {
+    const c = calendarAdvance(calendarInit(TPD, DPS), DPS * TPD * 4, TPD, DPS)
+    expect(yearIndex(c)).toBe(1)
+  })
+
+  it('works with variable seasons', () => {
+    const c = calendarAdvance(calendarInit(TPD2, VDPS), 365 * TPD2, TPD2, VDPS)
+    expect(yearIndex(c)).toBe(1)
   })
 })
