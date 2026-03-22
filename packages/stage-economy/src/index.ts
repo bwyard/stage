@@ -27,3 +27,25 @@ export {
   spendCurrency,
   canAfford,
 } from './core'
+
+export {
+  weightedPick,
+  resolveQty,
+  rollLoot,
+  applyLoot,
+  rollAndApply,
+} from './loot'
+
+export type { TransactionResult } from './curves'
+
+export {
+  priceLinear,
+  priceExponential,
+  supplyDemandMultiplier,
+  dynamicPrice,
+  sellPrice,
+  buyItem,
+  sellItem,
+  inventoryValue,
+  netWorth,
+} from './curves'
