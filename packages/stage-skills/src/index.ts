@@ -30,3 +30,12 @@ export {
 
 export type { UseResult } from './state'
 export { learnSkill, forgetSkill, useSkill, skillTick, skillAdvance } from './state'
+
+export {
+  availableToLearn,
+  prerequisiteChain,
+  directDependents,
+  canForget,
+  passiveEffects,
+  resetSkills,
+} from './tree'
