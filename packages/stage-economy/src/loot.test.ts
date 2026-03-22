@@ -83,13 +83,13 @@ describe('rollLoot — single pick table', () => {
 
   it('roll=0 picks gold with minQty', () => {
     const result = rollLoot(SINGLE_TABLE, [0, 0])
-    expect(result.drops[0].itemId).toBe('gold')
-    expect(result.drops[0].qty).toBe(5)
+    expect(result.drops[0]!.itemId).toBe('gold')
+    expect(result.drops[0]!.qty).toBe(5)
   })
 
   it('roll near 1 picks gem', () => {
     const result = rollLoot(SINGLE_TABLE, [0.9999, 0])
-    expect(result.drops[0].itemId).toBe('gem')
+    expect(result.drops[0]!.itemId).toBe('gem')
   })
 
   it('multi-roll table makes correct number of picks', () => {

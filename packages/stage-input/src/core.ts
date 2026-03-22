@@ -175,7 +175,7 @@ const resolveAnalog = (
   const out: Record<string, number> = {}
   for (const [action, bindings] of Object.entries(actionMap)) {
     for (const { signal } of bindings) {
-      if (signal in frameAnalog) { out[action] = frameAnalog[signal]; break }
+      if (signal in frameAnalog) { out[action] = frameAnalog[signal] ?? 0; break }
     }
   }
   return out

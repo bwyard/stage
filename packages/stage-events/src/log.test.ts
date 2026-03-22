@@ -34,12 +34,12 @@ describe('appendEvent', () => {
   it('adds one event', () => {
     const log = appendEvent(logInit(), HIT)
     expect(log.events).toHaveLength(1)
-    expect(log.events[0].kind).toBe('combat:hit')
+    expect(log.events[0]!.kind).toBe('combat:hit')
   })
 
   it('stamps event with log current tick', () => {
     const log = appendEvent(logInit(5), HIT)
-    expect(log.events[0].tick).toBe(5)
+    expect(log.events[0]!.tick).toBe(5)
   })
 
   it('does not mutate prior log', () => {
@@ -50,8 +50,8 @@ describe('appendEvent', () => {
 
   it('preserves event order', () => {
     const log = appendEvent(appendEvent(logInit(), HIT), KILL)
-    expect(log.events[0].kind).toBe('combat:hit')
-    expect(log.events[1].kind).toBe('combat:kill')
+    expect(log.events[0]!.kind).toBe('combat:hit')
+    expect(log.events[1]!.kind).toBe('combat:kill')
   })
 })
 
@@ -81,7 +81,7 @@ describe('eventsOfKind', () => {
     const log = appendEvents(logInit(), [hit(0), kill(0), xp(0)])
     const hits = eventsOfKind(log, 'combat:hit')
     expect(hits).toHaveLength(1)
-    expect(hits[0].kind).toBe('combat:hit')
+    expect(hits[0]!.kind).toBe('combat:hit')
   })
 
   it('returns empty when no matching events', () => {
@@ -92,7 +92,7 @@ describe('eventsOfKind', () => {
   it('typed result — combat:hit has damage field', () => {
     const log = appendEvent(logInit(), HIT)
     const hits = eventsOfKind(log, 'combat:hit')
-    expect(hits[0].damage).toBe(20)
+    expect(hits[0]!.damage).toBe(20)
   })
 })
 
@@ -118,7 +118,7 @@ describe('eventsInRange', () => {
     const log = appendEvents(logInit(), [hit(0), kill(2), xp(5)])
     const range = eventsInRange(log, 1, 4)
     expect(range).toHaveLength(1)
-    expect(range[0].kind).toBe('combat:kill')
+    expect(range[0]!.kind).toBe('combat:kill')
   })
 })
 
@@ -127,8 +127,8 @@ describe('recentEvents', () => {
     const log = appendEvents(logInit(), [hit(0), kill(0), xp(0), levelup(0)])
     const recent = recentEvents(log, 2)
     expect(recent).toHaveLength(2)
-    expect(recent[0].kind).toBe('progression:levelup')
-    expect(recent[1].kind).toBe('progression:xp')
+    expect(recent[0]!.kind).toBe('progression:levelup')
+    expect(recent[1]!.kind).toBe('progression:xp')
   })
 })
 

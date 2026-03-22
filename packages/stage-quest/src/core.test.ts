@@ -27,8 +27,8 @@ describe('questInit', () => {
 
   it('indexes templates by id', () => {
     const s = questInit(TEMPLATES)
-    expect(s.templates['intro'].id).toBe('intro')
-    expect(s.templates['finale'].requires).toEqual(['explore', 'defeat'])
+    expect(s.templates['intro']!.id).toBe('intro')
+    expect(s.templates['finale']!.requires).toEqual(['explore', 'defeat'])
   })
 
   it('empty template list', () => {

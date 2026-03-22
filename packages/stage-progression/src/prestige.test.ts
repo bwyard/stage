@@ -99,9 +99,9 @@ describe('dynastyPrestige', () => {
   it('works with extended record type', () => {
     const d0 = dynastyInit<GuildPrestigeRecord>()
     const d1 = dynastyPrestige(d0, guildRecord1)
-    expect(d1.records[0].heroClass).toBe('Warblade')
-    expect(d1.records[0].retiringTier).toBe('Legendary')
-    expect(d1.records[0].guildName).toBe('Iron Dawn')
+    expect(d1.records[0]!.heroClass).toBe('Warblade')
+    expect(d1.records[0]!.retiringTier).toBe('Legendary')
+    expect(d1.records[0]!.guildName).toBe('Iron Dawn')
   })
 })
 
