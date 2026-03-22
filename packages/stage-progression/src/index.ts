@@ -27,3 +27,6 @@ export {
   multiGain,
   applyStatGains,
 } from './curves'
+
+export type { XpResult } from './state'
+export { addXp, setXp } from './state'
