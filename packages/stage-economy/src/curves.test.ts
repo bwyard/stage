@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   priceLinear, priceExponential, supplyDemandMultiplier, dynamicPrice, sellPrice,
-  buyItem, sellItem, inventoryValue, netWorth,
+  buyItem, sellItem, inventoryValue, netWorth, calcUpgradeCost, calcUpgradeDuration,
 } from './curves'
 import { economyInit, addItem, itemQty } from './core'
 
@@ -132,5 +132,41 @@ describe('inventoryValue / netWorth', () => {
   it('unknown items contribute 0 to value', () => {
     const s = addItem(economyInit(0, {}), 'mystery', 10)
     expect(inventoryValue(s)).toBe(0)
+  })
+})
+
+describe('calcUpgradeCost', () => {
+  it('level 1 = base × 1²', () => {
+    expect(calcUpgradeCost(100, 1)).toBe(100)
+  })
+
+  it('level 2 = base × 4', () => {
+    expect(calcUpgradeCost(100, 2)).toBe(400)
+  })
+
+  it('level 3 = base × 9', () => {
+    expect(calcUpgradeCost(100, 3)).toBe(900)
+  })
+
+  it('scales quadratically', () => {
+    expect(calcUpgradeCost(50, 4)).toBe(50 * 16)
+  })
+})
+
+describe('calcUpgradeDuration', () => {
+  it('level 1 = baseTicks × 1', () => {
+    expect(calcUpgradeDuration(10, 1)).toBe(10)
+  })
+
+  it('level 2 = baseTicks × 2', () => {
+    expect(calcUpgradeDuration(10, 2)).toBe(20)
+  })
+
+  it('level 5 = baseTicks × 5', () => {
+    expect(calcUpgradeDuration(10, 5)).toBe(50)
+  })
+
+  it('scales linearly', () => {
+    expect(calcUpgradeDuration(24, 3)).toBe(72)
   })
 })

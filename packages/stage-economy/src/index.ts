@@ -51,4 +51,6 @@ export {
   sellItem,
   inventoryValue,
   netWorth,
+  calcUpgradeCost,
+  calcUpgradeDuration,
 } from './curves'
