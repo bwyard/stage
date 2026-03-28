@@ -2,7 +2,6 @@
 Last updated: 2026-03-28
 
 Read `../claude-resources/CLAUDE.md` first, then this file.
-Read `docs/STAGE-THESIS-HANDOFF.md` for the temporal architecture thesis applied to game systems.
 
 ---
 
