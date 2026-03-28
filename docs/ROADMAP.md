@@ -86,12 +86,13 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 ---
 
 ## Phase 7 — STAGE DSL
-*Game systems expressed as pure causal chains.*
+*The public interface for building games on STAGE.*
 
-- **stage-dsl** — declarative language for defining game systems as event-sourced causal chains
-  - Quest definitions, combat sequences, economy transactions — all expressed as pure functions over an event log
-  - Every game action is an event with a causal parent, every state query is a projection over events
+- **stage-dsl** — the API layer through which games consume STAGE systems
+  - Games don't call stage-combat, stage-quest, stage-economy directly — they define systems through the DSL
+  - Declarative game definitions: quest graphs, combat encounters, economy rules, progression curves — all as pure causal chains over an event log
   - Typed event builders, causal parent threading, condition gates as pure data
+  - The DSL composes all underlying stage packages into a unified authoring surface
   - Replay/rewind is architecturally free — the log is the ground truth
   - `gameState[n] = fold(eventLog[0..n])`
 
@@ -135,7 +136,7 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 | Phase 4 ✅ | idle-hero character leveling + skill trees |
 | Phase 5 ✅ | idle-hero offline progress + cross-system reactions |
 | Phase 6 ✅ | idle-hero NPC dialogue |
-| Phase 7   | idle-hero event-sourced game systems via DSL |
+| Phase 7   | idle-hero consumes STAGE through DSL — unified game authoring API |
 | Phase 8   | idle-hero save/load |
 | Phase 9   | action RPG / hack-and-slash consumer |
 | Phase 10  | roguelike / dungeon crawler consumer |
