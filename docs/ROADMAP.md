@@ -85,15 +85,27 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 
 ---
 
-## Phase 7 — World + persistence
-*The game world is a pure state record. Entities are values, not objects.*
+## Phase 7 — STAGE DSL
+*Game systems expressed as pure causal chains.*
 
-- **stage-world** — entity registry (pure state map, not ECS), save/load, state versioning for migrations
-  - Save = serialize current state. Load = deserialize + version-migrate. No special hooks.
+- **stage-dsl** — declarative language for defining game systems as event-sourced causal chains
+  - Quest definitions, combat sequences, economy transactions — all expressed as pure functions over an event log
+  - Every game action is an event with a causal parent, every state query is a projection over events
+  - Typed event builders, causal parent threading, condition gates as pure data
+  - Replay/rewind is architecturally free — the log is the ground truth
+  - `gameState[n] = fold(eventLog[0..n])`
 
 ---
 
-## Phase 8 — Action game layer
+## Phase 8 — World + persistence
+*The game world is a pure state record. Entities are values, not objects.*
+
+- **stage-world** — entity registry (pure state map, not ECS), save/load, state versioning for migrations
+  - Save = snapshot projection of the causal log. Load = deserialize + version-migrate. No special hooks.
+
+---
+
+## Phase 9 — Action game layer
 *Defer until RPG foundation is complete.*
 
 - **stage-ai** — utility AI scoring, FSM, NPC decision making
@@ -101,14 +113,14 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 
 ---
 
-## Phase 9 — Generation
+## Phase 10 — Generation
 *Defer until action game layer is complete.*
 
 - **stage-proc** — dungeon gen, BSP room partitioning, biome assignment, random event tables (depends on prime-noise, prime-voronoi — PRIME Phase 4)
 
 ---
 
-## Phase 10 — Strategy/simulation
+## Phase 11 — Strategy/simulation
 *TBD — reputation systems, factions, diplomacy, campaign overworld.*
 
 ---
@@ -123,10 +135,11 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 | Phase 4 ✅ | idle-hero character leveling + skill trees |
 | Phase 5 ✅ | idle-hero offline progress + cross-system reactions |
 | Phase 6 ✅ | idle-hero NPC dialogue |
-| Phase 7   | idle-hero save/load |
-| Phase 8   | action RPG / hack-and-slash consumer |
-| Phase 9   | roguelike / dungeon crawler consumer |
-| Phase 10  | 4X / grand strategy consumer |
+| Phase 7   | idle-hero event-sourced game systems via DSL |
+| Phase 8   | idle-hero save/load |
+| Phase 9   | action RPG / hack-and-slash consumer |
+| Phase 10  | roguelike / dungeon crawler consumer |
+| Phase 11  | 4X / grand strategy consumer |
 
 ---
 

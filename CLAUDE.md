@@ -67,9 +67,10 @@ Phase 3 ✅  stage-combat, stage-economy
 Phase 4 ✅  stage-progression, stage-skills
 Phase 5 ✅  stage-time, stage-events  ← cross-system glue
 Phase 6 ✅  stage-dialogue
-Phase 7     stage-world (entity registry + save/load)
-Phase 8     stage-ai, stage-nav  (action game layer, defer — needs PRIME Phase 3+)
-Phase 9     stage-proc            (generation, defer — needs PRIME Phase 4)
+Phase 7     stage-dsl             (game systems as pure causal chains)
+Phase 8     stage-world           (entity registry + save/load)
+Phase 9     stage-ai, stage-nav   (action game layer, defer — needs PRIME Phase 3+)
+Phase 10    stage-proc            (generation, defer — needs PRIME Phase 4)
 
 Full rationale in docs/ROADMAP.md.
 
