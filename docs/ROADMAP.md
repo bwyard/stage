@@ -1,4 +1,5 @@
 # STAGE — Roadmap
+Last updated: 2026-03-28
 
 ## What is STAGE?
 
@@ -38,28 +39,28 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 ---
 
 ## Phase 1 — Core loop + input ✅
-- **stage-loop** — fixed timestep accumulator, interpolation factor, frame time
-- **stage-input** — web + React Native adapters → NormalizedFrame → pure InputState
+- **stage-loop** — fixed timestep accumulator, interpolation factor, frame time (13 tests)
+- **stage-input** — web + React Native adapters → NormalizedFrame → pure InputState (45 tests)
 
 ---
 
 ## Phase 2 — Quest ✅
-- **stage-quest** — dependency DAG, Kahn's topological sort, questBegin/Complete/Fail/Retry
+- **stage-quest** — dependency DAG, Kahn's topological sort, questBegin/Complete/Fail/Retry, assignees, countdowns, questTick/questAdvance for offline progress (68 tests)
 
 ---
 
 ## Phase 3 — Combat + economy ✅
-- **stage-combat** — stat curves, diminishing returns, damage resolution, combatTick (speed order)
-- **stage-economy** — inventory, loot tables (weighted/multiDrop), price curves, buy/sell
+- **stage-combat** — stat curves, diminishing returns, damage resolution, combatTick (speed order) (39 tests)
+- **stage-economy** — inventory, loot tables (weighted/multiDrop), price curves, buy/sell, calcUpgradeCost/calcUpgradeDuration (72 tests)
 
 ---
 
 ## Phase 4 — RPG character systems ✅
 *A character is a pure function of accumulated experience and choices.*
 
-- **stage-progression** ✅ — XP accumulation, level-up transitions, stat growth curves, level caps
+- **stage-progression** ✅ — XP accumulation, level-up transitions, stat growth curves, level caps, xpMode (per-level/cumulative), prestige/dynasty lifecycle (82 tests)
   - `progression[n] = f(progression[n-1], xpEvent[n])`
-- **stage-skills** ✅ — skill trees, ability unlocks, cooldowns (tick-based), buff/debuff stacking
+- **stage-skills** ✅ — skill trees, ability unlocks, cooldowns (tick-based), buff/debuff stacking, passive effects, metadata for consumer-defined conditions (57 tests)
   - `skillState[n] = f(skillState[n-1], action[n])`
 
 ---
@@ -67,47 +68,60 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 ## Phase 5 — RPG time + events ✅ ← THE GLUE
 *Events are the append-only log that connects all systems. Time is the substrate.*
 
-- **stage-time** ✅ — cooldowns, idle timers, offline progress (accumulated ticks), scheduled events
+- **stage-time** ✅ — cooldowns, idle timers, offline progress (accumulated ticks), scheduled events, calendar (year/season/day), variable-length seasons (54 tests)
   - Offline progress = `f(lastTick, currentTick)` — deterministic from tick delta
-- **stage-events** ✅ — cross-system event log, typed game events, trigger conditions
+- **stage-events** ✅ — cross-system event log, typed game events, trigger conditions, generic `EventLog<T>` for consumer extension, cross-system reducers (killCount, totalXpGained, completedQuests, etc.) (34 tests)
   - Events are APPEND-only — never deleted, only reacted to
   - Combat emits → quest listens → economy fires → progression updates
   - This is the most direct expression of the APPEND pattern
 
 ---
 
-## Phase 6 — RPG narrative
+## Phase 6 — RPG narrative ✅
 *A dialogue tree is a pure function of choices made.*
 
-- **stage-dialogue** — branching trees, speaker/line state, condition gates, conversation history
+- **stage-dialogue** ✅ — branching trees, speaker/line state, condition gates (pure data tagged unions, no closures), conversation history (41 tests)
   - `dialogueState[n] = f(dialogueState[n-1], choice[n])`
 
 ---
 
-## Phase 7 — World + persistence
+## Phase 7 — STAGE DSL
+*The public interface for building games on STAGE.*
+
+- **stage-dsl** — the API layer through which games consume STAGE systems
+  - Games don't call stage-combat, stage-quest, stage-economy directly — they define systems through the DSL
+  - Declarative game definitions: quest graphs, combat encounters, economy rules, progression curves — all as pure causal chains over an event log
+  - Typed event builders, causal parent threading, condition gates as pure data
+  - The DSL composes all underlying stage packages into a unified authoring surface
+  - Replay/rewind is architecturally free — the log is the ground truth
+  - `gameState[n] = fold(eventLog[0..n])`
+
+---
+
+## Phase 8 — World + persistence
 *The game world is a pure state record. Entities are values, not objects.*
 
 - **stage-world** — entity registry (pure state map, not ECS), save/load, state versioning for migrations
-  - Save = serialize current state. Load = deserialize + version-migrate. No special hooks.
+  - Save = snapshot projection of the causal log. Load = deserialize + version-migrate. No special hooks.
 
 ---
 
-## Phase 8 — Action game layer
+## Phase 9 — Action game layer
 *Defer until RPG foundation is complete.*
 
 - **stage-ai** — utility AI scoring, FSM, NPC decision making
-- **stage-nav** — A*, flow fields (depends on prime-spatial)
+- **stage-nav** — A*, flow fields (depends on prime-spatial, prime-splines — PRIME Phase 3)
 
 ---
 
-## Phase 9 — Generation
+## Phase 10 — Generation
 *Defer until action game layer is complete.*
 
-- **stage-proc** — dungeon gen, BSP room partitioning, biome assignment, random event tables
+- **stage-proc** — dungeon gen, BSP room partitioning, biome assignment, random event tables (depends on prime-noise, prime-voronoi — PRIME Phase 4)
 
 ---
 
-## Phase 10 — Strategy/simulation
+## Phase 11 — Strategy/simulation
 *TBD — reputation systems, factions, diplomacy, campaign overworld.*
 
 ---
@@ -121,11 +135,59 @@ Cargo workspace + TypeScript packages, pnpm workspace, CI.
 | Phase 3 ✅ | idle-hero combat + economy |
 | Phase 4 ✅ | idle-hero character leveling + skill trees |
 | Phase 5 ✅ | idle-hero offline progress + cross-system reactions |
-| Phase 6   | idle-hero NPC dialogue |
-| Phase 7   | idle-hero save/load |
-| Phase 8   | action RPG / hack-and-slash consumer |
-| Phase 9   | roguelike / dungeon crawler consumer |
-| Phase 10  | 4X / grand strategy consumer |
+| Phase 6 ✅ | idle-hero NPC dialogue |
+| Phase 7   | idle-hero consumes STAGE through DSL — unified game authoring API |
+| Phase 8   | idle-hero save/load |
+| Phase 9   | action RPG / hack-and-slash consumer |
+| Phase 10  | roguelike / dungeon crawler consumer |
+| Phase 11  | 4X / grand strategy consumer |
+
+---
+
+## Idle-hero feedback incorporated
+
+Features added to stage in response to signals from idle-hero-rpg (bwyard/Idle-hero-rpg):
+
+| PR | Signal | Change |
+|----|--------|--------|
+| #28 | idle-hero integration signals | xpMode (per-level), prestige/dynasty lifecycle, currency utils, skills metadata, calendar system, offlineTicks |
+| #31 | building upgrade formulas | `calcUpgradeCost(base, targetLevel)`, `calcUpgradeDuration(baseTicks, targetLevel)` |
+| #33 | 364-day year drift | Variable-length seasons `[91, 93, 91, 90]` — 365-day year, zero drift |
+| #26 | guild-specific events | Generic `EventLog<T>` — consumers extend without coupling domain into stage |
+| #35 | stricter TS config | `noUncheckedIndexedAccess: true` across all packages |
+
+---
+
+## PRIME dependency map
+
+Stage's Rust crates depend on PRIME via path deps (`../prime/crates/`). PRIME's roadmap (bwyard/prime) schedules the primitives stage needs:
+
+| Stage package | Needs from PRIME | PRIME phase |
+|---------------|-----------------|-------------|
+| stage-nav | prime-spatial, prime-splines | Phase 3 (target 2026-04-08) |
+| stage-proc | prime-noise, prime-voronoi, prime-random | Phase 4 (target 2026-04-22) |
+| stage-ai | prime-dynamics (optional — ODE solvers for population models) | Phase 6 (target 2026-05-05) |
+
+Stage's TypeScript packages are self-contained — no PRIME TS dependency yet. PRIME Phase 10 (TS ports, target 2026-06-23) will enable swapping stage TS implementations for PRIME-backed versions.
+
+---
+
+## Test status
+
+505 tests across 10 packages (as of 2026-03-28):
+
+| Package | Tests |
+|---------|-------|
+| stage-progression | 82 |
+| stage-economy | 72 |
+| stage-quest | 68 |
+| stage-skills | 57 |
+| stage-time | 54 |
+| stage-input | 45 |
+| stage-dialogue | 41 |
+| stage-combat | 39 |
+| stage-events | 34 |
+| stage-loop | 13 |
 
 ---
 
